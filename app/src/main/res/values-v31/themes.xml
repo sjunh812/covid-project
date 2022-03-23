@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Theme -->
+    <style name="Theme.SplashScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowSplashScreenBackground">@color/ghost_white</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/ghost_white</item>
+<!--        <item name="android:windowSplashScreenAnimationDuration">1000</item>-->
+<!--        <item name="android:windowSplashScreenBrandingImage"></item>-->
+    </style>
+
+</resources>
