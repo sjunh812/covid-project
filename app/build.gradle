@@ -51,11 +51,21 @@ dependencies {
 
     // Coroutine
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'   // viewModelScope
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
-    implementation 'com.squareup.retrofit2:converter-simplexml:2.1.0'   // Xml
+//    implementation 'com.squareup.retrofit2:converter-simplexml:2.1.0'   // Xml
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'    // Gson
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.3'  // Okhttp
     implementation "com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.3" // logging
+
+    // Xml parser
+    implementation 'com.tickaroo.tikxml:annotation:0.8.13'
+    implementation 'com.tickaroo.tikxml:core:0.8.13'
+    implementation 'com.tickaroo.tikxml:retrofit-converter:0.8.13'
+    kapt 'com.tickaroo.tikxml:processor:0.8.13'
+
+    // Graph
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }

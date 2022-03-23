@@ -9,6 +9,12 @@
     <color name="white">#FFFFFFFF</color>
 
     <!-- Custom color -->
-    <color name="ghost_white">#F8F8FF</color>
+    <color name="ghost_white">#FFFFFFFF</color>
+    <color name="pink_200">#FFD1DF</color>
+    <color name="pink_500">#FF92B3</color>
+    <color name="pink_700">#FF135A</color>
+    <color name="gray_ec">#ECECEC</color>
+    <color name="gray_a9">#A9A9A9</color>
+    <color name="gray_80">#808080</color>
 
 </resources>

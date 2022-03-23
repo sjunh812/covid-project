@@ -1,6 +1,8 @@
 package org.sjhstudio.howstoday.network
 
 import android.util.Log
+import com.tickaroo.tikxml.TikXml
+import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -8,7 +10,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.sjhstudio.howstoday.util.Val
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import java.util.concurrent.TimeUnit
 
 class RetrofitClient(converter: String = Val.GSON): Interceptor {
@@ -34,7 +35,11 @@ class RetrofitClient(converter: String = Val.GSON): Interceptor {
             .client(mOkHttpClient)
             .addConverterFactory(
                 when(converter) {
-                    Val.XML -> SimpleXmlConverterFactory.create()
+                    Val.XML -> TikXmlConverterFactory.create(
+                        TikXml.Builder()
+                            .exceptionOnUnreadXml(false)
+                            .build()
+                    )
                     else -> GsonConverterFactory.create()
                 }
             )
@@ -49,4 +54,5 @@ class RetrofitClient(converter: String = Val.GSON): Interceptor {
 
         return chain.proceed(request)
     }
+
 }

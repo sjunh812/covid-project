@@ -7,13 +7,45 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:padding="10dp"
+        android:background="@color/ghost_white"
         tools:context=".MainActivity">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginEnd="5dp"
+                android:text="코로나 감염현황"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="20dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:text="(2022.03.22 기준)"
+                android:textColor="#4B75C8"
+                android:textSize="11dp" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
+            android:layout_weight="2"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+            android:orientation="horizontal"
+            android:elevation="1.5dp"
+            android:background="@drawable/bg_radius_20" >
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -25,18 +57,28 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
                     android:text="일일 확진"
-                    android:textStyle="bold"
-                    android:textSize="18sp" />
+                    android:textSize="11dp" />
 
                 <TextView
+                    android:id="@+id/day_decide_cnt_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="\?"
-                    android:textSize="20sp" />
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:textSize="13dp" />
 
             </LinearLayout>
 
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/gray_ec"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp" />
+
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -47,19 +89,162 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
                     android:text="일일 사망"
-                    android:textSize="18sp"
-                    android:textStyle="bold"/>
+                    android:textSize="11dp" />
+
+                <TextView
+                    android:id="@+id/day_death_cnt_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="\?"
+                    android:textSize="13dp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/gray_ec"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:text="전체 확진"
+                    android:textSize="11dp" />
+
+                <TextView
+                    android:id="@+id/total_decide_cnt_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="\?"
-                    android:textSize="20sp" />
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:textSize="13dp" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/gray_ec"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:text="전체 사망"
+                    android:textSize="11dp" />
+
+                <TextView
+                    android:id="@+id/total_death_cnt_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="\?"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:textSize="13dp" />
 
             </LinearLayout>
 
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:text="3.22"
+                    android:textSize="16dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:text="신규 확진자"
+                    android:textSize="16dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="353,980"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/pink_700" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:text="7일 평균"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_80" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="353,980"
+                    android:textSize="11dp"
+                    android:textColor="@color/pink_700" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/bar_chart"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/bg_radius_20"
+            android:elevation="1.5dp"
+            android:layout_weight="8" />
 
     </LinearLayout>
 
