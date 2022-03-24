@@ -9,7 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <!-- Custom color -->
-    <color name="ghost_white">#FFFFFFFF</color>
+    <color name="background">#F5F5F5</color>
     <color name="pink_200">#FFD1DF</color>
     <color name="pink_500">#FF92B3</color>
     <color name="pink_700">#FF135A</color>

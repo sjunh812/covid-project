@@ -2,11 +2,14 @@ package org.sjhstudio.howstoday.util
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.text.TextUtils
+import android.widget.TextView
 import java.lang.Exception
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -87,6 +90,19 @@ class Utils {
 
         fun pxToDp(context: Context, px: Float): Int {
             return (px / context.resources.displayMetrics.density).toInt()
+        }
+
+        fun setVariationTv(tv: TextView, before: Int, after: Int) {
+            if(before < after) {
+                tv.text = "(▲${getNumberWithComma(abs(after-before).toString())})"
+                tv.setTextColor(Color.parseColor("#FF0000"))
+            } else if(before > after) {
+                tv.text = "(▼${getNumberWithComma(abs(after-before).toString())})"
+                tv.setTextColor(Color.parseColor("#0000FF"))
+            } else {
+                tv.text = "(0)"
+                tv.setTextColor(Color.parseColor("#00FF00"))
+            }
         }
     }
 

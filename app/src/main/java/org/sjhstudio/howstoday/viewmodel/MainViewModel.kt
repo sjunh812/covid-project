@@ -7,12 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.model.CovidInfState
+import org.sjhstudio.howstoday.model.MainData
 import org.sjhstudio.howstoday.network.RetrofitClient
 import org.sjhstudio.howstoday.util.Utils
 import org.sjhstudio.howstoday.util.Val
 import retrofit2.await
 
-class CovidInfStateViewModel: ViewModel() {
+class MainViewModel: ViewModel() {
 
     private val TAG = "CovidInfStateViewModel"
 
@@ -20,14 +21,23 @@ class CovidInfStateViewModel: ViewModel() {
     val covidInfState: LiveData<CovidInfState>
         get() = _covidInfState
 
+    private var _mainData = MutableLiveData<MainData>()
+    val mainData: LiveData<MainData>
+        get() = _mainData
+
     init {
         viewModelScope.launch {
             callCovidInfState()
         }
     }
 
-    fun update() = viewModelScope.launch {
+    suspend fun updateCovidInfState() {
         callCovidInfState()
+        println("xxx finish callCovidInfState")
+    }
+
+    fun updateMainData(data: MainData) {
+        _mainData.value = data
     }
 
     private suspend fun callCovidInfState() {
@@ -35,7 +45,7 @@ class CovidInfStateViewModel: ViewModel() {
         params["serviceKey"] = Val.COVID_INF_STATE_API_KEY
         params["pageNo"] = "1"
         params["numOfRows"] = "10"
-        params["startCreateDt"] = Utils.getFewDaysAgo(7, "yyyMMdd")
+        params["startCreateDt"] = Utils.getFewDaysAgo(8, "yyyMMdd")
         params["endCreateDt"] = Utils.getFewDaysAgo(0, "yyyMMdd")
 
         val retrofitClient = RetrofitClient(Val.XML)
@@ -61,5 +71,4 @@ class CovidInfStateViewModel: ViewModel() {
             e.printStackTrace()
         }
     }
-
 }
