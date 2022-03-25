@@ -2,13 +2,19 @@ package org.sjhstudio.howstoday
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
@@ -18,9 +24,8 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.MPPointF
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.sjhstudio.howstoday.adapter.CovidSidoInfStateAdapter
 import org.sjhstudio.howstoday.databinding.ActivityMainBinding
-import org.sjhstudio.howstoday.model.MainData
-import org.sjhstudio.howstoday.model.item
 import org.sjhstudio.howstoday.util.Utils
 import org.sjhstudio.howstoday.viewmodel.MainViewModel
 
@@ -28,6 +33,8 @@ class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var mainVm: MainViewModel
+
+    private lateinit var covidSidoInfStateAdapter: CovidSidoInfStateAdapter
 
     private var isReady = false
 
@@ -39,6 +46,7 @@ class MainActivity : BaseActivity() {
         launch {
             delay(500)
             isReady = true
+            println("xxx 화면출력 시작")
         }
 
         val content = findViewById<View>(android.R.id.content)
@@ -53,27 +61,38 @@ class MainActivity : BaseActivity() {
             }
         })
 
-        setBarChart()  // Set barChart
-        setSwipeRefreshLayout()
-        observeCovidInfState()  // Observing CovidInfState
-        observeMainData()   // Observing MainData
+        // UI 초기화
+        initBarChart()
+        initCovidSidoInfStateRv()  // 시도별 코로나 감염현황 RecyclerView 초기화.
+        setSwipeRefreshLayout() // SwipeRefreshLayout 세팅.
+
+        // Observing
+        observeCovidInfState()
+        observeCovidSidoInfState()
+        observeMainData()
+        observeSelectedData()
     }
 
-    private fun setBarChart() {
+    private fun initBarChart() {
         binding.barChart.apply {
+            setNoDataText("잠시만 기다려주세요!")
+            setNoDataTextColor(Color.parseColor("#5A79BF"))
+            setNoDataTextTypeface(Typeface.DEFAULT_BOLD)
             setTouchEnabled(true)  // 터치
             setScaleEnabled(false)  // 확대
             setPinchZoom(false) // 핀치줌
             setDrawGridBackground(false)    // 격자선
             setExtraOffsets(20f, 40f, 20f, 40f)
-            isDoubleTapToZoomEnabled = false    // 더블탭 줌
-            description.isEnabled = false   // 오른쪽하단 설명라벨
+            isDoubleTapToZoomEnabled = false    // 줌(더블탭)
+            description.isEnabled = false   // 설명라벨(오른쪽 하단)
             legend.isEnabled = false    // 범례
+            marker = BarChartMarkerView(this@MainActivity, R.layout.bar_chart_marker)
+                .apply { chartView = binding.barChart } // 마커
 
             xAxis.apply {   // x축
                 setDrawGridLines(false) // 격자선
                 textSize = 8f
-                axisMinimum = 1.5f    // 데이터 최소표시값
+//                axisMinimum = 1.5f    // 데이터 최소표시값
                 textColor = ContextCompat.getColor(this@MainActivity, R.color.gray_a9)
                 position = XAxis.XAxisPosition.BOTTOM   // x축 데이터 위치(아래)
             }
@@ -91,36 +110,17 @@ class MainActivity : BaseActivity() {
             setOnChartValueSelectedListener(object: OnChartValueSelectedListener {
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
                     e?.let {
-                        println("xxx onValueSelected")
-                        var date = "?"
-                        val decide = Utils.getNumberWithComma(e.y.toInt().toString())
-                        val dataList = mainVm.covidInfState.value?.body?.items?.item
-                        dataList?.let {
-                            date = Utils.getDateFormatString(
-                                "yyyyMMdd",
-                                "M.d",
-                                it[e.x.toInt()-1].stateDt
-                            ) ?: "?"
-                        }
-                        mainVm.updateMainData(MainData(e.x, date, decide ?: "?"))
+                        println("xxx onValueSelected()!!")
+                        mainVm.selectBarChart(e.x.toInt()-1)
                     }
                 }
 
                 override fun onNothingSelected() {}
             })
-            marker = BarChartMarkerView(this@MainActivity, R.layout.bar_chart_marker)
-                .apply { chartView = binding.barChart } // Marker
         }
     }
 
-    private fun setEntry(minY: Int, maxY: Int, dataList: List<item>) {
-        val entry = arrayListOf<BarEntry>()
-
-        for(i in 1 until dataList.size) {
-            val dayDecideCnt = dataList[i].decideCnt - dataList[i-1].decideCnt
-            entry.add(BarEntry((i+1).toFloat(), dayDecideCnt.toFloat()))
-        }
-
+    private fun setBarChartEntry(minY: Int, maxY: Int, entry: List<BarEntry>, stateBts: List<String>) {
         val set = BarDataSet(entry, "").apply { // 각 막대
             setDrawValues(false)    // 값 표시
             valueTextSize = 10f
@@ -129,83 +129,110 @@ class MainActivity : BaseActivity() {
         }
 
         binding.barChart.apply {
-            xAxis.valueFormatter = LabelCustomFormatter(dataList)   // x축 label formatter
+            xAxis.valueFormatter = LabelCustomFormatter(stateBts)   // x축 label formatter
             axisLeft.axisMinimum = minY.toFloat()   // y축 데이터 최소표시값
             axisLeft.axisMaximum = maxY.toFloat()   // y축 데이터 최대표시값
             data = BarData(set).apply { barWidth = 0.2f }   // 데이터갱신
 
             invalidate()    // 그리기
-            highlightValue(mainVm.mainData.value?.gIndex ?: 8f, 0, true)
+            highlightValue((stateBts.size+1).toFloat(), 0, true)
             animateY(1000) // y축 애니메이션
         }
+    }
+
+    private fun initCovidSidoInfStateRv() {
+        covidSidoInfStateAdapter = CovidSidoInfStateAdapter(mainVm)
+        binding.covidSidoInfStateRv.layoutManager = GridLayoutManager(this, 2)
+        binding.covidSidoInfStateRv.addItemDecoration(object: RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                super.getItemOffsets(outRect, view, parent, state)
+                if(parent.getChildLayoutPosition(view) % 2 != 0) outRect.left = 20
+                outRect.bottom = 40
+            }
+        })
     }
 
     private fun setSwipeRefreshLayout() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             launch {
-                mainVm.updateCovidInfState()
-                binding.barChart.highlightValue(8f, 0, true)
-                binding.swipeRefreshLayout.isRefreshing = false
+                try {
+                    mainVm.updateAllCovidApi()
+//                    mainVm.updateMainData()
+                    binding.swipeRefreshLayout.isRefreshing = false
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this@MainActivity, "서버 에러", Toast.LENGTH_SHORT).show()
+                    binding.swipeRefreshLayout.isRefreshing = false
+                }
             }
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun observeCovidInfState() {
         mainVm.covidInfState.observe(this) {
-            val items = it.body.items.item
-            var decideCntSum = 0
-            var minY = 0
-            var maxY = 0
+            println("xxx ~~~~~~~~~~~Observing CovidInfState")
+            binding.covidInfStateDateTv.text = "(${Utils.getDateFormatString(
+                "yyyyMMdd",
+                "yyyy.M.d",
+                it.body.items.item[it.body.totalCount-1].stateDt
+            )} 기준)"
+        }
+    }
 
-            for(i in 1 until items.size) {
-                val dayDecideCnt = items[i].decideCnt - items[i-1].decideCnt
-                val dayDeathCnt = items[i].deathCnt - items[i-1].deathCnt
+    @SuppressLint("SetTextI18n")
+    private fun observeCovidSidoInfState() {
+        mainVm.covidSidInfState.observe(this) {
+            println("xxx ~~~~~~~~~~~Observing CovidSidoInfState")
 
-                decideCntSum += dayDecideCnt
-                if(minY > dayDecideCnt) minY = dayDecideCnt
-                if(maxY < dayDecideCnt) maxY = dayDecideCnt
-
-                if(i == items.size-1) {
-                    binding.dayDecideCntTv.text = Utils.getNumberWithComma(dayDecideCnt.toString())
-                    binding.dayDeathCntTv.text = Utils.getNumberWithComma(dayDeathCnt.toString())
-                    binding.totalDecideCntTv.text = Utils.getNumberWithComma(items[i].decideCnt.toString())
-                    binding.totalDeathCntTv.text = Utils.getNumberWithComma(items[i].deathCnt.toString())
-
-                    minY = Utils.calBarChartMinYAxis(minY)
-                    maxY = Utils.calBarChartMaxYAxis(maxY)
-                }
-            }
-
-            setEntry(minY, maxY, items)
-
-            Utils.setVariationTv(
-                binding.dayDecideVariationTv,
-                items[items.lastIndex-1].decideCnt-items[items.lastIndex-2].decideCnt,
-                items[items.lastIndex].decideCnt-items[items.lastIndex-1].decideCnt
-            )
-            Utils.setVariationTv(
-                binding.dayDeathVariationTv,
-                items[items.lastIndex-1].deathCnt-items[items.lastIndex-2].deathCnt,
-                items[items.lastIndex].deathCnt-items[items.lastIndex-1].deathCnt
-            )
-            binding.weekAverageDecideCntTv.text = Utils.getNumberWithComma((decideCntSum/items.size).toString())
+            covidSidoInfStateAdapter.items = it.body.items.item
+            binding.covidSidoInfStateRv.adapter = covidSidoInfStateAdapter
+            binding.covidSidoInfStateDateTv.text = "(${Utils.getDateFormatString(
+                "yyyy년 MM월 dd일 HH시",
+                "yyyy.M.d", 
+                it.body.items.item[0].stdDay
+            )} 기준)"
         }
     }
 
     private fun observeMainData() {
         mainVm.mainData.observe(this) {
-            binding.selectedDateTv.text = it.gDate
-            binding.selectedDecideCntText.text = it.gDecideCnt
+            println("xxx ~~~~~~~~~~~Observing MainData")
+
+            setBarChartEntry(it.minY, it.maxY, it.entry, it.stateDts)
+            binding.dayDecideCntTv.text = Utils.getNumberWithComma(it.dayDecideCnt)
+            binding.dayDeathCntTv.text = Utils.getNumberWithComma(it.dayDeathCnt)
+            binding.totalDecideCntTv.text = Utils.getNumberWithComma(it.totalDecideCnt)
+            binding.totalDeathCntTv.text = Utils.getNumberWithComma(it.totalDeathCnt)
+            binding.weekAverageDecideCntTv.text = Utils.getNumberWithComma(it.weekAverageDecideCnt.toString())
+            Utils.setVariationTv(binding.dayDecideVariationTv, it.dayDecideVariation)
+            Utils.setVariationTv(binding.dayDeathVariationTv, it.dayDeathVariation)
         }
     }
 
-    inner class LabelCustomFormatter(private val dataList: List<item>): ValueFormatter() {
+    private fun observeSelectedData() {
+        println("xxx ~~~~~~~~~~~Observing SelectData")
+
+        mainVm.selectedDate.observe(this) {
+            binding.selectedDateTv.text = it
+        }
+        mainVm.selectedDecideCnt.observe(this) {
+            binding.selectedDecideCntText.text = it
+        }
+    }
+
+    inner class LabelCustomFormatter(private val stateBts: List<String>): ValueFormatter() {
 
         override fun getFormattedValue(value: Float): String {
             return Utils.getDateFormatString(
                 "yyyyMMdd",
                 "M.d",
-                dataList[value.toInt()-1].stateDt
+                stateBts[value.toInt()-2]
             ) ?: "?"
         }
 

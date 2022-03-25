@@ -7,6 +7,7 @@ class Val {
         const val GSON = "gson"
 
         const val COVID_INF_STATE_API_KEY = "NuiLlUwSghAoTWDFGi0JzApjA/cvJoTufTC444+RRrrFuu4vYFwfTOE/LjGMKaxORCevUGNrFWlyjHyXylqbqA=="
+        const val COVID_SIDO_INF_STATE_API_KEY = "NuiLlUwSghAoTWDFGi0JzApjA/cvJoTufTC444+RRrrFuu4vYFwfTOE/LjGMKaxORCevUGNrFWlyjHyXylqbqA=="
     }
 
 }

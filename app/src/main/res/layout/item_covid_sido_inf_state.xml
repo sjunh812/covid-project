@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:gravity="center"
+        android:background="@drawable/bg_radius_15"
+        android:elevation="1dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/gubun_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:text="시도명"
+            android:textColor="@color/black"
+            android:textSize="13dp"
+            android:textStyle="bold" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="누적 확진자"
+                android:textColor="@color/gray_80"
+                android:textSize="10dp" />
+
+            <TextView
+                android:id="@+id/def_cnt_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="\?"
+                android:textStyle="bold"
+                android:textColor="#0000FF"
+                android:textSize="10dp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="누적 사망자"
+                android:textColor="@color/gray_80"
+                android:textSize="10dp" />
+
+            <TextView
+                android:id="@+id/death_cnt_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="\?"
+                android:textStyle="bold"
+                android:textColor="#0000FF"
+                android:textSize="10dp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="전일대비"
+                android:textColor="@color/gray_80"
+                android:textSize="10dp" />
+
+            <TextView
+                android:id="@+id/inc_dec_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="\?"
+                android:textColor="#FF0000"
+                android:textSize="10dp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="해외유입"
+                android:textColor="@color/gray_80"
+                android:textSize="10dp" />
+
+            <TextView
+                android:id="@+id/over_flow_cnt_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="\?"
+                android:textColor="#0000FF"
+                android:textSize="10dp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</layout>

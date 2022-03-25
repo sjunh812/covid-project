@@ -13,5 +13,6 @@ open class BaseActivity: AppCompatActivity(), CoroutineScope {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 }

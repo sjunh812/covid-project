@@ -7,13 +7,13 @@ import com.tickaroo.tikxml.annotation.Xml
 @Xml(name = "response")
 data class CovidInfState(
     @Element(name = "header")
-    val header: Header,
+    val header: CiHeader,
     @Element(name = "body")
-    val body: Body
+    val body: CiBody
 )
 
 @Xml(name = "header")
-data class Header(
+data class CiHeader(
     @PropertyElement(name = "resultCode")
     val resultCode: String,
     @PropertyElement(name = "resultMsg")
@@ -21,9 +21,9 @@ data class Header(
 )
 
 @Xml(name = "body")
-data class Body(
+data class CiBody(
     @Element(name = "items")
-    val items: items,
+    val items: CiItems,
     @PropertyElement(name = "numOfRows")
     val numOfRows: Int,
     @PropertyElement(name = "pageNo")
@@ -33,13 +33,13 @@ data class Body(
 )
 
 @Xml(name = "items")
-data class items(
+data class CiItems(
     @Element(name = "item")
-    var item: List<item>
+    var item: List<CiItem>
 )
 
 @Xml(name = "item")
-data class item(
+data class CiItem(
     @PropertyElement(name = "createDt")
     val createDt: String,
     @PropertyElement(name = "deathCnt")

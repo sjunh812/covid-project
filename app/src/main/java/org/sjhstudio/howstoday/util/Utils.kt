@@ -104,6 +104,19 @@ class Utils {
                 tv.setTextColor(Color.parseColor("#00FF00"))
             }
         }
+
+        fun setVariationTv(tv: TextView, value: Int) {
+            if(value > 0) {
+                tv.text = "(▲${getNumberWithComma(abs(value).toString())})"
+                tv.setTextColor(Color.parseColor("#FF0000"))
+            } else if(value < 0) {
+                tv.text = "(▼${getNumberWithComma(abs(value).toString())})"
+                tv.setTextColor(Color.parseColor("#0000FF"))
+            } else {
+                tv.text = "(0)"
+                tv.setTextColor(Color.parseColor("#00FF00"))
+            }
+        }
     }
 
 }
