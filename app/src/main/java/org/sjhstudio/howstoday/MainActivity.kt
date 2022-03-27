@@ -161,8 +161,7 @@ class MainActivity : BaseActivity() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             launch {
                 try {
-                    mainVm.updateAllCovidApi()
-//                    mainVm.updateMainData()
+                    mainVm.updateAll()
                     binding.swipeRefreshLayout.isRefreshing = false
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -175,12 +174,12 @@ class MainActivity : BaseActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun observeCovidInfState() {
-        mainVm.covidInfState.observe(this) {
+        mainVm.covidInfState2.observe(this) {
             println("xxx ~~~~~~~~~~~Observing CovidInfState")
             binding.covidInfStateDateTv.text = "(${Utils.getDateFormatString(
-                "yyyyMMdd",
+                "yyyy년 MM월 dd일 HH시",
                 "yyyy.M.d",
-                it.body.items.item[it.body.totalCount-1].stateDt
+                it[it.lastIndex].stdDay
             )} 기준)"
         }
     }
@@ -230,7 +229,7 @@ class MainActivity : BaseActivity() {
 
         override fun getFormattedValue(value: Float): String {
             return Utils.getDateFormatString(
-                "yyyyMMdd",
+                "yyyy년 MM월 dd일 HH시",
                 "M.d",
                 stateBts[value.toInt()-2]
             ) ?: "?"

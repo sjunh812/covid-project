@@ -50,6 +50,15 @@ class Utils {
             return SimpleDateFormat(formatPattern).format(cal.time)
         }
 
+        @SuppressLint("SimpleDateFormat")
+        fun compareDate(): Boolean {
+            val today = Date(System.currentTimeMillis())    // 현재시간
+            val hour = SimpleDateFormat("HH").format(today)
+
+            println("xxx compareDate() : hour=$hour")
+
+            return hour.toInt() > 10
+        }
 
         fun calBarChartMinYAxis(n: Int): Int {
             val len = n.toString().length
@@ -90,19 +99,6 @@ class Utils {
 
         fun pxToDp(context: Context, px: Float): Int {
             return (px / context.resources.displayMetrics.density).toInt()
-        }
-
-        fun setVariationTv(tv: TextView, before: Int, after: Int) {
-            if(before < after) {
-                tv.text = "(▲${getNumberWithComma(abs(after-before).toString())})"
-                tv.setTextColor(Color.parseColor("#FF0000"))
-            } else if(before > after) {
-                tv.text = "(▼${getNumberWithComma(abs(after-before).toString())})"
-                tv.setTextColor(Color.parseColor("#0000FF"))
-            } else {
-                tv.text = "(0)"
-                tv.setTextColor(Color.parseColor("#00FF00"))
-            }
         }
 
         fun setVariationTv(tv: TextView, value: Int) {
