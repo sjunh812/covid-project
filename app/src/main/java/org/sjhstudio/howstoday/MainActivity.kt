@@ -22,6 +22,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.MPPointF
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.adapter.CovidSidoInfStateAdapter
@@ -70,12 +71,13 @@ class MainActivity : BaseActivity() {
         observeCovidInfState()
         observeCovidSidoInfState()
         observeMainData()
+        observeErrorData()
         observeSelectedData()
     }
 
     private fun initBarChart() {
         binding.barChart.apply {
-            setNoDataText("잠시만 기다려주세요!")
+            setNoDataText("잠시만 기다려주세요.")
             setNoDataTextColor(Color.parseColor("#5A79BF"))
             setNoDataTextTypeface(Typeface.DEFAULT_BOLD)
             setTouchEnabled(true)  // 터치
@@ -165,7 +167,7 @@ class MainActivity : BaseActivity() {
                     binding.swipeRefreshLayout.isRefreshing = false
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(this@MainActivity, "서버 에러", Toast.LENGTH_SHORT).show()
+                    mainVm.updateErrorData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
                     binding.swipeRefreshLayout.isRefreshing = false
                 }
             }
@@ -214,10 +216,20 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    private fun observeErrorData() {
+        mainVm.errorData.observe(this) {
+            println("xxx ~~~~~~~~~~~Observing ErrorData")
+
+            Snackbar.make(binding.totalDeathCntTv, it, 1500).show()
+            binding.selectedDateTv.visibility = View.GONE
+        }
+    }
+
     private fun observeSelectedData() {
         println("xxx ~~~~~~~~~~~Observing SelectData")
 
         mainVm.selectedDate.observe(this) {
+            binding.selectedDateTv.visibility = View.VISIBLE
             binding.selectedDateTv.text = it
         }
         mainVm.selectedDecideCnt.observe(this) {

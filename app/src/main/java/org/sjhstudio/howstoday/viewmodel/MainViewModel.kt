@@ -25,26 +25,35 @@ class MainViewModel: ViewModel() {
     val covidInfState: LiveData<CovidInfState>
         get() = _covidInfState
 
-    // 코로나 감염현황2 (시도별 감염현황중 합계데이터 이용.)
+    // 코로나 감염현황(시도별 합계데이터 이용)
     private var _covidInfState2 = MutableLiveData<List<CsiItem>>()
     val covidInfState2: LiveData<List<CsiItem>>
         get() = _covidInfState2
 
+    // 코로나 시도별 감염현황
     private var _covidSidoInfState = MutableLiveData<CovidSidoInfState>()
     val covidSidInfState: LiveData<CovidSidoInfState>
         get() = _covidSidoInfState
 
+    // 메인데이터
     private var _mainData = MutableLiveData<MainData>()
     val mainData: LiveData<MainData>
         get() = _mainData
 
+    // 선택그래프(날짜)
     private var _selectedDate = MutableLiveData<String>()
     val selectedDate: LiveData<String>
         get() = _selectedDate
 
+    // 선택그래프(확진자수)
     private var _selectedDecideCnt = MutableLiveData<String>()
     val selectedDecideCnt: LiveData<String>
         get() = _selectedDecideCnt
+
+    // 에러데이터
+    private var _errorData = MutableLiveData<String>()
+    val errorData: LiveData<String>
+        get() = _errorData
 
     init {
         viewModelScope.launch {
@@ -62,7 +71,7 @@ class MainViewModel: ViewModel() {
 
     fun updateMainData() {
         _covidInfState2.value?.let {
-            println("xxx updateMainData() ${it.size}")
+            println("xxx updateMainData()")
 
             val value = MainData()
             val entry = arrayListOf<BarEntry>()
@@ -102,9 +111,13 @@ class MainViewModel: ViewModel() {
         }
     }
 
+    fun updateErrorData(errorMsg: String) {
+        _errorData.value = errorMsg
+    }
+
     fun selectBarChart(index: Int) {
         _covidInfState2.value?.let {
-            _selectedDate.value = Utils.getDateFormatString("yyyy년 MM월 dd일 HH시", "M.d", it[index].stdDay)
+            _selectedDate.value = Utils.getDateFormatString("yyyy년 MM월 dd일 HH시", "M월 d일", it[index].stdDay)
             _selectedDecideCnt.value = Utils.getNumberWithComma((it[index].incDec).toString())
         }
     }
@@ -135,10 +148,12 @@ class MainViewModel: ViewModel() {
 
                 else -> {
                     Log.e(TAG, "코로나 감염현황 호출에러 : resultCode=$resultCode, msg=${value.header.resultMsg}")
+                    updateErrorData(value.header.resultMsg)
                 }
             }
         } catch(e: Exception) {
             e.printStackTrace()
+            updateErrorData(e.message?:"예상치 못한 에러가 발생했습니다. 다시 시도해 주십시오.")
         }
     }
 
@@ -179,10 +194,12 @@ class MainViewModel: ViewModel() {
 
                 else -> {
                     Log.e(TAG, "코로나 시도별 감염현황 호출에러 : resultCode=$resultCode, msg=${value.header.resultMsg}")
+                    updateErrorData(value.header.resultMsg)
                 }
             }
         } catch(e: Exception) {
             e.printStackTrace()
+            updateErrorData(e.message?:"예상치 못한 에러가 발생했습니다. 다시 시도해 주십시오.")
         }
     }
 
@@ -208,17 +225,19 @@ class MainViewModel: ViewModel() {
                     value.apply {
                         body.items.item = body.items.item.sortedBy { it.seq }
                     }
-                    _covidSidoInfState.value = value
 
+                    _covidSidoInfState.value = value
                     println("xxx callCovidSidoInfState() 완료 : ${value.body.items.item.size}")
                 }
 
                 else -> {
                     Log.e(TAG, "코로나 시도별 감염현황 호출에러 : resultCode=$resultCode, msg=${value.header.resultMsg}")
+                    updateErrorData(value.header.resultMsg)
                 }
             }
         } catch(e: Exception) {
             e.printStackTrace()
+            updateErrorData(e.message?:"예상치 못한 에러가 발생했습니다. 다시 시도해 주십시오.")
         }
     }
 }

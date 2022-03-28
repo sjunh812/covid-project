@@ -16,7 +16,6 @@ import kotlin.math.roundToInt
 class Utils {
 
     companion object {
-
         /**
          * 날짜 포멧
          *
