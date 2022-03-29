@@ -5,7 +5,7 @@ import com.github.mikephil.charting.data.BarEntry
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class MainData(
+data class CovidMainData(
     // 그래프 관련
     var minY: Int = 0,  // y축 최소값
     var maxY: Int = 0,  // y축 최대값

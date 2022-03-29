@@ -1,10 +1,15 @@
 package org.sjhstudio.howstoday.util
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.text.TextUtils
+import android.view.View
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
+import com.google.android.material.snackbar.Snackbar
 import java.lang.Exception
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -16,6 +21,23 @@ import kotlin.math.roundToInt
 class Utils {
 
     companion object {
+        /**
+         * Check location permission
+         */
+        fun checkLocationPermission(context: Context, view: View): Boolean {
+            return if(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+                println("xxx yes")
+                true
+            } else {
+                println("xxx no")
+                Snackbar.make(view, "위치권한을 허용해주세요.", 1000).show()
+                false
+            }
+        }
+
         /**
          * 날짜 포멧
          *

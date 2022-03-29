@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/tab_covid"
+        android:title="@string/covid"
+        android:icon="@drawable/ic_covid" />
+
+    <item
+        android:id="@+id/tab_air"
+        android:title="@string/fine_dust"
+        android:icon="@drawable/ic_fine_dust" />
+
+</menu>

@@ -8,9 +8,9 @@ import org.sjhstudio.howstoday.R
 import org.sjhstudio.howstoday.databinding.ItemCovidSidoInfStateBinding
 import org.sjhstudio.howstoday.model.CsiItem
 import org.sjhstudio.howstoday.util.Utils
-import org.sjhstudio.howstoday.viewmodel.MainViewModel
+import org.sjhstudio.howstoday.viewmodel.CovidViewModel
 
-class CovidSidoInfStateAdapter(vm: MainViewModel): RecyclerView.Adapter<CovidSidoInfStateAdapter.ViewHolder>() {
+class CovidSidoInfStateAdapter(vm: CovidViewModel): RecyclerView.Adapter<CovidSidoInfStateAdapter.ViewHolder>() {
 
     var items = vm.covidSidInfState.value?.body?.items?.item
 

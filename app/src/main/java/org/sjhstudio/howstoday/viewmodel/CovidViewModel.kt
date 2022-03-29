@@ -10,13 +10,13 @@ import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.model.CovidInfState
 import org.sjhstudio.howstoday.model.CovidSidoInfState
 import org.sjhstudio.howstoday.model.CsiItem
-import org.sjhstudio.howstoday.model.MainData
+import org.sjhstudio.howstoday.model.CovidMainData
 import org.sjhstudio.howstoday.network.RetrofitClient
 import org.sjhstudio.howstoday.util.Utils
 import org.sjhstudio.howstoday.util.Val
 import retrofit2.await
 
-class MainViewModel: ViewModel() {
+class CovidViewModel: ViewModel() {
 
     private val TAG = "CovidInfStateViewModel"
 
@@ -36,8 +36,8 @@ class MainViewModel: ViewModel() {
         get() = _covidSidoInfState
 
     // 메인데이터
-    private var _mainData = MutableLiveData<MainData>()
-    val mainData: LiveData<MainData>
+    private var _mainData = MutableLiveData<CovidMainData>()
+    val mainData: LiveData<CovidMainData>
         get() = _mainData
 
     // 선택그래프(날짜)
@@ -73,7 +73,7 @@ class MainViewModel: ViewModel() {
         _covidInfState2.value?.let {
             println("xxx updateMainData()")
 
-            val value = MainData()
+            val value = CovidMainData()
             val entry = arrayListOf<BarEntry>()
             val stateDts = arrayListOf<String>()
             var decideCntSum = 0
