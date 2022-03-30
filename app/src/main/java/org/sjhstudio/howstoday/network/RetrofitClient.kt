@@ -8,11 +8,12 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import org.sjhstudio.howstoday.util.Val
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-class RetrofitClient(converter: String = Val.GSON): Interceptor {
+class RetrofitClient(converter: String = Val.GSON, url: String = CallUrl.OPEN_API_URL): Interceptor {
 
     private val TAG = "RetrofitClient"
 
@@ -31,7 +32,7 @@ class RetrofitClient(converter: String = Val.GSON): Interceptor {
             .build()
 
         mRetrofit = Retrofit.Builder()
-            .baseUrl(CallUrl.URL)
+            .baseUrl(url)
             .client(mOkHttpClient)
             .addConverterFactory(
                 when(converter) {

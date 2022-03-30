@@ -29,10 +29,8 @@ class Utils {
                 == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-                println("xxx yes")
                 true
             } else {
-                println("xxx no")
                 Snackbar.make(view, "위치권한을 허용해주세요.", 1000).show()
                 false
             }

@@ -127,9 +127,9 @@ class CovidFragment: BaseFragment() {
             axisLeft.axisMaximum = maxY.toFloat()   // y축 데이터 최대표시값
             data = BarData(set).apply { barWidth = 0.2f }   // 데이터갱신
 
-            invalidate()    // 그리기
+            notifyDataSetChanged()    // 그리기
             highlightValue((stateBts.size+1).toFloat(), 0, true)
-//            animateY(1000) // y축 애니메이션
+            animateY(1000) // y축 애니메이션
         }
     }
 

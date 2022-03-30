@@ -187,7 +187,6 @@ class CovidViewModel: ViewModel() {
                         }
                         resultValue.sortBy { it.seq }
                     }
-
                     _covidInfState2.value = resultValue
                     println("xxx callCovidInfState2() 완료 : $resultValue")
                 }
@@ -225,7 +224,6 @@ class CovidViewModel: ViewModel() {
                     value.apply {
                         body.items.item = body.items.item.sortedBy { it.seq }
                     }
-
                     _covidSidoInfState.value = value
                     println("xxx callCovidSidoInfState() 완료 : ${value.body.items.item.size}")
                 }
@@ -237,7 +235,7 @@ class CovidViewModel: ViewModel() {
             }
         } catch(e: Exception) {
             e.printStackTrace()
-            updateErrorData(e.message?:"예상치 못한 에러가 발생했습니다. 다시 시도해 주십시오.")
+            updateErrorData(e.message?:"서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
         }
     }
 }
