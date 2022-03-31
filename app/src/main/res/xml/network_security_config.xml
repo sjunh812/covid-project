@@ -4,6 +4,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <!-- 클라우드서버 http통신 허용 -->
         <domain includeSubdomains="true">openapi.data.go.kr</domain>
+        <domain includeSubdomains="true">apis.data.go.kr</domain>
     </domain-config>
 
 </network-security-config>

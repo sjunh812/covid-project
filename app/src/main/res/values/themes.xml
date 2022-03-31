@@ -20,8 +20,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">@color/background</item>
         <item name="android:windowLightStatusBar" tools:targetApi="l">true</item>
-        <!-- Splash screen -->
-        <item name="android:windowSplashScreenBackground" tools:targetApi="s">#5A79BF</item>
+        <!-- Splash screen #5A79BF -->
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">#2349A0</item>
         <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@mipmap/ic_launcher</item>
         <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="s">#5A79BF</item>
     </style>

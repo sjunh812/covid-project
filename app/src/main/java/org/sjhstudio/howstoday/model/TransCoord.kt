@@ -20,6 +20,6 @@ data class Meta(
 
 @Parcelize
 data class TM(
-    val x: Double = 0.0,
-    val y: Double = 0.0
+    val x: Double? = null,
+    val y: Double? = null
 ): Parcelable

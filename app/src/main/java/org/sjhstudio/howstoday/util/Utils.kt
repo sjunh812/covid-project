@@ -2,6 +2,7 @@ package org.sjhstudio.howstoday.util
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -9,7 +10,9 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
+import org.sjhstudio.howstoday.R
 import java.lang.Exception
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -131,6 +134,20 @@ class Utils {
                 tv.text = "(0)"
                 tv.setTextColor(Color.parseColor("#00FF00"))
             }
+        }
+
+        fun airGrade(grade: Int): String {
+            return when(grade) {
+                1 -> "좋음"
+                2 -> "보통"
+                3 -> "나쁨"
+                4 -> "매우나쁨"
+                else -> "오류"
+            }
+        }
+
+        fun setStatusBarColor(activity: Activity, color: Int) {
+            activity.window?.statusBarColor = ContextCompat.getColor(activity, color)
         }
     }
 

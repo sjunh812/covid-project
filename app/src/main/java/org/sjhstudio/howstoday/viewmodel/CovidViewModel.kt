@@ -112,7 +112,9 @@ class CovidViewModel: ViewModel() {
     }
 
     fun updateErrorData(errorMsg: String) {
-        _errorData.value = errorMsg
+        viewModelScope.launch {
+            _errorData.value = errorMsg
+        }
     }
 
     fun selectBarChart(index: Int) {

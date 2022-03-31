@@ -14,6 +14,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import org.sjhstudio.howstoday.BaseFragment
+import org.sjhstudio.howstoday.MainActivity
 import org.sjhstudio.howstoday.R
 import org.sjhstudio.howstoday.databinding.FragmentAirBinding
 import org.sjhstudio.howstoday.util.Utils
@@ -61,7 +62,7 @@ class AirFragment: BaseFragment() {
     }
 
     fun findLocation() {
-        if(Utils.checkLocationPermission(requireContext(), binding.latitudeTv)) {
+        if(Utils.checkLocationPermission(requireContext(), binding.stationTv)) {
             if(lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 val lastNetworkLoc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
                 val lastGpsLoc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
@@ -89,7 +90,7 @@ class AirFragment: BaseFragment() {
                     locationListener
                 )
             } else {
-                Snackbar.make(binding.latitudeTv, "GPS를 켜주세요.", 1000).show()
+                Snackbar.make(binding.stationTv, "GPS를 켜주세요.", 1000).show()
             }
         }
     }
@@ -100,17 +101,17 @@ class AirFragment: BaseFragment() {
         when {
             permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
                 findLocation()
-                Snackbar.make(binding.latitudeTv, "정확한 위치권한이 허용되었습니다.", 1000).show()
+                Snackbar.make(binding.stationTv, "정확한 위치권한이 허용되었습니다.", 1000).show()
             }
 
             permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
                 findLocation()
-                Snackbar.make(binding.latitudeTv, "대략적 위치권한이 허용되었습니다.", 1000).show()
+                Snackbar.make(binding.stationTv, "대략적 위치권한이 허용되었습니다.", 1000).show()
             }
 
             else -> {
                 findLocation()
-                Snackbar.make(binding.latitudeTv, "허용된 위치권한이 없습니다.", 1000).show()
+                Snackbar.make(binding.stationTv, "허용된 위치권한이 없습니다.", 1000).show()
             }
         }
     }
@@ -118,17 +119,23 @@ class AirFragment: BaseFragment() {
     fun observeMainData() {
         vm.mainData.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing MainData")
-            binding.latitudeTv.text = it.latitude.toString()
-            binding.longitudeTv.text = it.longitude.toString()
-            binding.xTv.text = it.x.toString()
-            binding.yTv.text = it.y.toString()
+            if(it.pm10Grade.isEmpty()) {
+                Snackbar.make(binding.stationTv, "잠시만 기다려주세요.", 1500).show()
+            } else {
+                binding.stationTv.text = it.station
+                binding.stationAddrTv.text = it.stationAddr
+                binding.pm10GradeTv.text = it.pm10Grade
+                binding.pm10ValueTv.text = it.pm10Value
+                binding.pm25ValueTv.text = it.pm25Value
+                Utils.setStatusBarColor(context as MainActivity, R.color.air_green)
+            }
         }
     }
 
     fun observeErrorData() {
         vm.errorData.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing ErrorData")
-            Snackbar.make(binding.longitudeTv, it, 1000).show()
+            Snackbar.make(binding.stationTv, it, 1000).show()
         }
     }
 

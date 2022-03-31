@@ -62,12 +62,18 @@ class MainActivity: BaseActivity() {
                 val transaction = supportFragmentManager.beginTransaction()
 
                 when(it.itemId) {
-                    R.id.tab_covid -> transaction.replace(R.id.container, covidFragment, "covidFragment")
+                    R.id.tab_covid -> {
+                        transaction.replace(R.id.container, covidFragment, "covidFragment")
+                        transaction.commit()
+                        Utils.setStatusBarColor(this@MainActivity, R.color.background)
+                    }
 
-                    R.id.tab_air -> transaction.replace(R.id.container, airFragment, "airFragment")
+                    R.id.tab_air -> {
+                        transaction.replace(R.id.container, airFragment, "airFragment")
+                        transaction.commit()
+                    }
                 }
 
-                transaction.commit()
                 true
             }
         }
