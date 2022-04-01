@@ -1,5 +1,6 @@
 package org.sjhstudio.howstoday.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,6 +19,8 @@ import org.sjhstudio.howstoday.util.Val
 import retrofit2.await
 
 class AirViewModel: ViewModel() {
+
+    private val TAG = "AirViewModel"
 
     private var _mainData = MutableLiveData<AirMainData>()
     val mainData: LiveData<AirMainData>
@@ -38,12 +41,29 @@ class AirViewModel: ViewModel() {
             val airInfo = withContext(IO) { callAirInfo(airStation?.stationName) }
 
             _mainData.value = _mainData.value?.apply {
-                station = airStation?.stationName!!
-                stationAddr = airStation.addr!!
-                pm10Grade = Utils.airGrade(airInfo?.pm10Grade!!)
-                pm10Value = "미세먼지: ${airInfo.pm10Value!!}㎍/㎥"
-                pm25Grade = Utils.airGrade(airInfo.pm25Grade!!)
-                pm25Value = "초미세먼지: ${airInfo.pm25Value!!}㎍/㎥"
+                // 측정소
+                station = airStation?.stationName?:""
+                stationAddr = airStation?.addr?:""
+                // 측정일
+                dateTime = airInfo?.dataTime?:""
+                // 미세먼지
+                pm10Grade = Utils.airGrade(airInfo?.pm10Grade?:-1)
+                pm10Value = "(미세먼지 ${airInfo?.pm10Value?:""}㎍/㎥)"
+                // 초미세먼지
+                pm25Grade = Utils.airGrade(airInfo?.pm25Grade?:-1)
+                pm25Value = "${airInfo?.pm25Value?:""}㎍/㎥"
+                // 이산화질소
+                no2Grade = Utils.airGrade(airInfo?.no2Grade?:-1)
+                no2Value = "${airInfo?.no2Value?:""}ppm"
+                // 오존
+                o3Grade = Utils.airGrade(airInfo?.o3Grade?:-1)
+                o3Value = "${airInfo?.o3Value?:""}ppm"
+                // 일산화탄소
+                coGrade = Utils.airGrade(airInfo?.coGrade?:-1)
+                coValue = "${airInfo?.coValue?:""}ppm"
+                // 아황산가스
+                so2Grade = Utils.airGrade(airInfo?.so2Grade?:-1)
+                so2Value = "${airInfo?.so2Value?:""}ppm"
             }
         }
     }
@@ -71,7 +91,8 @@ class AirViewModel: ViewModel() {
             return value.documents[0]
         } catch (e: Exception) {
             e.printStackTrace()
-            updateErrorData(e.message ?: "서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
+            Log.e(TAG, e.message?:"callTM() error..")
+            updateErrorData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
         }
 
         return null
@@ -95,7 +116,8 @@ class AirViewModel: ViewModel() {
             return value.response.body.items[0]
         } catch (e: Exception) {
             e.printStackTrace()
-            updateErrorData(e.message ?: "서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
+            Log.e(TAG, e.message?:"callAirStation() error..")
+            updateErrorData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
         }
 
         return null
@@ -122,7 +144,8 @@ class AirViewModel: ViewModel() {
             return value.response.body.items[0]
         } catch(e: Exception) {
             e.printStackTrace()
-            updateErrorData(e.message?:"서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
+            Log.e(TAG, e.message?:"callAirInfo() error..")
+            updateErrorData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
         }
 
         return null

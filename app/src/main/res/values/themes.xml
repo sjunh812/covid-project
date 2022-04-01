@@ -2,8 +2,8 @@
     <!-- Base application theme. -->
     <style name="Theme.HowsToday" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimary">@color/main_700</item>
+        <item name="colorPrimaryVariant">@color/main_500</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
@@ -20,10 +20,18 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">@color/background</item>
         <item name="android:windowLightStatusBar" tools:targetApi="l">true</item>
-        <!-- Splash screen #5A79BF -->
-        <item name="android:windowSplashScreenBackground" tools:targetApi="s">#2349A0</item>
+        <!-- Splash screen -->
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">@color/main_700</item>
         <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@mipmap/ic_launcher</item>
-        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="s">#5A79BF</item>
+        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="s">@color/main_700</item>
+    </style>
+
+    <style name="BottomNavigationView.TextAppearance" parent="@style/TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">8dp</item>
+    </style>
+    <style name="BottomNavigationView.TextAppearance.Active" parent="@style/TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">8dp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>

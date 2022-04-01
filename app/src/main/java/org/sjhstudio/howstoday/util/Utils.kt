@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.text.TextUtils
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -146,8 +147,61 @@ class Utils {
             }
         }
 
+        fun setGradeFace(imageView: ImageView, grade: String, isPm10: Boolean = false) {
+            when(grade) {
+                "좋음" -> {
+                    imageView.setImageResource(
+                        if(isPm10) R.drawable.ic_happy_face
+                        else R.drawable.ic_happy_face_small
+                    )
+                }
+                "보통" -> {
+                    imageView.setImageResource(
+                        if(isPm10) R.drawable.ic_normal_face
+                        else R.drawable.ic_normal_face_small
+                    )
+                }
+                "나쁨" -> {
+                    imageView.setImageResource(
+                        if(isPm10) R.drawable.ic_sad_face
+                        else R.drawable.ic_sad_face_small
+                    )
+                }
+                "매우나쁨" -> {
+                    imageView.setImageResource(
+                        if(isPm10) R.drawable.ic_bad_face
+                        else R.drawable.ic_bad_face_small
+                    )
+                }
+            }
+        }
+
+        fun setGradeColor(grade: String): String {
+            return when(grade) {
+                "좋음" -> "#3FBCEC"
+                "보통" -> "#3AB244"
+                "나쁨" -> "#FF894F"
+                "매우나쁨" -> "#FF3F3F"
+                else -> "#FFFFFF"
+            }
+        }
+
+        fun setGradePhrase(grade: String): String {
+            return when(grade) {
+                "좋음" -> "최고! 이런날 운동 한번 어떠세요? "
+                "보통" -> "무난! 외출시 코로나 대비 꼭 마스크를 착용하세요."
+                "나쁨" -> "주의! 외출시 KG94 마스크 착용하세요."
+                "매우나쁨" -> "위험! 오늘은 외출을 삼가하세요."
+                else -> "서버상태가 좋지 않습니다..다시 시도해주세요."
+            }
+        }
+
         fun setStatusBarColor(activity: Activity, color: Int) {
             activity.window?.statusBarColor = ContextCompat.getColor(activity, color)
+        }
+
+        fun setStatusBarColor(activity: Activity, color: String) {
+            activity.window?.statusBarColor = Color.parseColor(color)
         }
     }
 

@@ -1,6 +1,7 @@
 package org.sjhstudio.howstoday.fragment
 
 import android.Manifest
+import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -8,11 +9,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.BaseFragment
 import org.sjhstudio.howstoday.MainActivity
 import org.sjhstudio.howstoday.R
@@ -35,6 +39,11 @@ class AirFragment: BaseFragment() {
         lm.removeUpdates(locationListener)
     }
 
+    override fun onPause() {
+        super.onPause()
+        binding.swipeRefreshLayout.isRefreshing = false
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,6 +59,11 @@ class AirFragment: BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.noticeTv.apply {
+            text = "잠시만 기다려주세요!"
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+        setSwipeRefreshLayout()
         observeMainData()
         observeErrorData()
     }
@@ -73,11 +87,11 @@ class AirFragment: BaseFragment() {
 //                    vm.updateMainData(mLatitude!!, mLongitude!!)
 //                }
 
-                lastGpsLoc?.let { loc ->
-                    mLatitude = loc.latitude
-                    mLongitude = loc.longitude
-                    vm.updateMainData(mLatitude!!, mLongitude!!)
-                }
+//                lastGpsLoc?.let { loc ->
+//                    mLatitude = loc.latitude
+//                    mLongitude = loc.longitude
+//                    vm.updateMainData(mLatitude!!, mLongitude!!)
+//                }
 
                 lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                     0,  // 통지사이의 최소 시간간격(ms)
@@ -92,6 +106,8 @@ class AirFragment: BaseFragment() {
             } else {
                 Snackbar.make(binding.stationTv, "GPS를 켜주세요.", 1000).show()
             }
+        } else {
+            binding.noticeTv.text = "위치권한을 허용해주세요!"
         }
     }
 
@@ -112,6 +128,24 @@ class AirFragment: BaseFragment() {
             else -> {
                 findLocation()
                 Snackbar.make(binding.stationTv, "허용된 위치권한이 없습니다.", 1000).show()
+                binding.noticeTv.text = "위치권한을 허용해주세요!"
+            }
+        }
+    }
+
+    private fun setSwipeRefreshLayout() {
+        binding.swipeRefreshLayout.apply {
+            setColorSchemeColors(ContextCompat.getColor(requireContext(), R.color.main_700))
+            setOnRefreshListener {
+                launch {
+                    try {
+                        findLocation()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        vm.updateErrorData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
+                        binding.swipeRefreshLayout.isRefreshing = false
+                    }
+                }
             }
         }
     }
@@ -120,14 +154,52 @@ class AirFragment: BaseFragment() {
         vm.mainData.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing MainData")
             if(it.pm10Grade.isEmpty()) {
-                Snackbar.make(binding.stationTv, "잠시만 기다려주세요.", 1500).show()
+                println("xxx empty")
             } else {
+                // 측정소
                 binding.stationTv.text = it.station
-                binding.stationAddrTv.text = it.stationAddr
+                binding.stationAddrTv.text = "측정소 : ${it.stationAddr}"
+                // 측정일
+                binding.dateTimeTv.text = it.dateTime
+                // 미세먼지
                 binding.pm10GradeTv.text = it.pm10Grade
                 binding.pm10ValueTv.text = it.pm10Value
+                Utils.setGradeFace(binding.pm10FaceImg, it.pm10Grade, true)
+                // 초미세먼지
+                binding.pm25GradeTv.text = it.pm25Grade
                 binding.pm25ValueTv.text = it.pm25Value
-                Utils.setStatusBarColor(context as MainActivity, R.color.air_green)
+                Utils.setGradeFace(binding.pm25FaceImg, it.pm25Grade)
+                // 이산화질소
+                binding.no2GradeTv.text = it.no2Grade
+                binding.no2ValueTv.text = it.no2Value
+                Utils.setGradeFace(binding.no2FaceImg, it.no2Grade)
+                // 오존
+                binding.o3GradeTv.text = it.o3Grade
+                binding.o3ValueTv.text = it.o3Value
+                Utils.setGradeFace(binding.o3FaceImg, it.o3Grade)
+                // 일산화탄소
+                binding.coGradeTv.text = it.coGrade
+                binding.coValueTv.text = it.coValue
+                Utils.setGradeFace(binding.coFaceImg, it.coGrade)
+                // 아황산가스
+                binding.so2GradeTv.text = it.so2Grade
+                binding.so2ValueTv.text = it.so2Value
+                Utils.setGradeFace(binding.so2FaceImg, it.so2Grade)
+
+                val color = Utils.setGradeColor(it.pm10Grade)
+                Utils.setStatusBarColor(context as MainActivity, color)
+                binding.container.setBackgroundColor(Color.parseColor(color))
+                binding.noticeTv.apply {
+                    text = Utils.setGradePhrase(it.pm10Grade)
+                    if(text.contains("서버")) {
+                        binding.pm10FaceImg.setImageResource(R.drawable.ic_sorrow_face)
+                        setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                    } else {
+                        binding.pm10FaceImg.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.grade_face_anim))
+                        setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                    }
+                }
+                binding.swipeRefreshLayout.isRefreshing = false
             }
         }
     }

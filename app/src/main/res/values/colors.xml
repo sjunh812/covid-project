@@ -7,8 +7,10 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
     <!-- Custom color -->
+    <color name="main_700">#3243BC</color>
+    <color name="main_500">#6C79D2</color>
+    <color name="main_200">#D5D9F2</color>
     <color name="background">#F9F9F9</color>
     <color name="pink_200">#FFD1DF</color>
     <color name="pink_500">#FF92B3</color>
@@ -16,6 +18,4 @@
     <color name="gray_ec">#ECECEC</color>
     <color name="gray_a9">#A9A9A9</color>
     <color name="gray_80">#808080</color>
-    <color name="air_green">#3AB270</color>
-
 </resources>

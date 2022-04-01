@@ -28,6 +28,7 @@ import com.github.mikephil.charting.utils.MPPointF
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.BaseFragment
+import org.sjhstudio.howstoday.MainActivity
 import org.sjhstudio.howstoday.R
 import org.sjhstudio.howstoday.adapter.CovidSidoInfStateAdapter
 import org.sjhstudio.howstoday.databinding.FragmentCovidBinding
@@ -57,6 +58,7 @@ class CovidFragment: BaseFragment() {
         initBarChart()
         initCovidSidoInfStateRv()  // 시도별 코로나 감염현황 RecyclerView 초기화.
         setSwipeRefreshLayout() // SwipeRefreshLayout 세팅.
+        Utils.setStatusBarColor(context as MainActivity, R.color.background)
 
         // Observing
         observeCovidInfState()
@@ -151,15 +153,18 @@ class CovidFragment: BaseFragment() {
     }
 
     private fun setSwipeRefreshLayout() {
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            launch {
-                try {
-                    vm.updateAll()
-                    binding.swipeRefreshLayout.isRefreshing = false
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    vm.updateErrorData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
-                    binding.swipeRefreshLayout.isRefreshing = false
+        binding.swipeRefreshLayout.apply {
+            setColorSchemeColors(ContextCompat.getColor(requireContext(), R.color.main_700))
+            setOnRefreshListener {
+                launch {
+                    try {
+                        vm.updateAll()
+                        binding.swipeRefreshLayout.isRefreshing = false
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        vm.updateErrorData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
+                        binding.swipeRefreshLayout.isRefreshing = false
+                    }
                 }
             }
         }

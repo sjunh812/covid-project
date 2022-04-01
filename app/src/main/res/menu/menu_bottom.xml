@@ -10,6 +10,6 @@
     <item
         android:id="@+id/tab_air"
         android:title="@string/fine_dust"
-        android:icon="@drawable/ic_fine_dust" />
+        android:icon="@drawable/ic_particulate_matter" />
 
 </menu>

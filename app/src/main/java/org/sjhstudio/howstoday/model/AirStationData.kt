@@ -3,6 +3,10 @@ package org.sjhstudio.howstoday.model
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * 측정소 정보
+ * 한국환경공단(에어코리아)
+ */
 @Parcelize
 data class AirStationData(
     val response: AsResponse,
@@ -28,7 +32,7 @@ data class AsBody(
 
 @Parcelize
 data class AirStation(
-    val tm: Float? = null,
-    val addr: String? = null,
-    val stationName: String? = null
+    val tm: Float? = null,  // 요청한 tm좌표와 측정소간 거리(km)
+    val addr: String? = null,   // 측정소 주소
+    val stationName: String? = null // 측정소 이름
 ): Parcelable

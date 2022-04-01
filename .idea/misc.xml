@@ -5,11 +5,14 @@
       <map>
         <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/drawable/bg_transparent.xml" value="0.235" />
         <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/drawable/bottom_menu_selector.xml" value="0.235" />
+        <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/drawable/splash_background.xml" value="0.238" />
         <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/layout/activity_main.xml" value="0.3619791666666667" />
-        <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/layout/fragment_air.xml" value="0.3619791666666667" />
+        <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/layout/fragment_air.xml" value="0.32432432432432434" />
         <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/layout/fragment_covid.xml" value="0.3619791666666667" />
         <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/layout/nav_header_main.xml" value="0.3619791666666667" />
         <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/menu/menu_bottom.xml" value="0.3619791666666667" />
+        <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.193" />
+        <entry key="..\:/Users/sjunh/Desktop/How's Today/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.193" />
         <entry key="..\:/Users/sjunh/Desktop/HowsToday/app/src/main/res/drawable/bg_bar_chart_marker.xml" value="0.2115" />
         <entry key="..\:/Users/sjunh/Desktop/HowsToday/app/src/main/res/drawable/bg_bar_chart_marker_tail.xml" value="0.2115" />
         <entry key="..\:/Users/sjunh/Desktop/HowsToday/app/src/main/res/drawable/bg_marker.xml" value="0.2115" />
