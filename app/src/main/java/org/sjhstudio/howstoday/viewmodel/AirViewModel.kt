@@ -48,7 +48,7 @@ class AirViewModel: ViewModel() {
                 dateTime = airInfo?.dataTime?:""
                 // 미세먼지
                 pm10Grade = Utils.airGrade(airInfo?.pm10Grade?:-1)
-                pm10Value = "(미세먼지 ${airInfo?.pm10Value?:""}㎍/㎥)"
+                pm10Value = "(${airInfo?.pm10Value?:""}㎍/㎥)"
                 // 초미세먼지
                 pm25Grade = Utils.airGrade(airInfo?.pm25Grade?:-1)
                 pm25Value = "${airInfo?.pm25Value?:""}㎍/㎥"
@@ -64,6 +64,9 @@ class AirViewModel: ViewModel() {
                 // 아황산가스
                 so2Grade = Utils.airGrade(airInfo?.so2Grade?:-1)
                 so2Value = "${airInfo?.so2Value?:""}ppm"
+                // 통합대기환경
+                khaiGrade = Utils.airGrade(airInfo?.khaiGrade?:-1)
+                khaiValue = airInfo?.khaiValue?:""
             }
         }
     }

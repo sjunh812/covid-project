@@ -164,7 +164,7 @@ class AirFragment: BaseFragment() {
                 // 미세먼지
                 binding.pm10GradeTv.text = it.pm10Grade
                 binding.pm10ValueTv.text = it.pm10Value
-                Utils.setGradeFace(binding.pm10FaceImg, it.pm10Grade, true)
+                Utils.setGradeFace(binding.pm10FaceImg, it.pm10Grade)
                 // 초미세먼지
                 binding.pm25GradeTv.text = it.pm25Grade
                 binding.pm25ValueTv.text = it.pm25Value
@@ -185,17 +185,20 @@ class AirFragment: BaseFragment() {
                 binding.so2GradeTv.text = it.so2Grade
                 binding.so2ValueTv.text = it.so2Value
                 Utils.setGradeFace(binding.so2FaceImg, it.so2Grade)
-
-                val color = Utils.setGradeColor(it.pm10Grade)
+                // 통합대기환경
+                binding.khaiGradeTv.text = it.khaiGrade
+                Utils.setGradeFace(binding.khaiFaceImg, it.khaiGrade, true)
+                // 배경색(통합대기환경수치 이용)
+                val color = Utils.setGradeColor(it.khaiGrade)
                 Utils.setStatusBarColor(context as MainActivity, color)
                 binding.container.setBackgroundColor(Color.parseColor(color))
                 binding.noticeTv.apply {
-                    text = Utils.setGradePhrase(it.pm10Grade)
+                    text = Utils.setGradePhrase(it.khaiGrade)
                     if(text.contains("서버")) {
-                        binding.pm10FaceImg.setImageResource(R.drawable.ic_sorrow_face)
+                        binding.khaiFaceImg.setImageResource(R.drawable.ic_sorrow_face)
                         setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                     } else {
-                        binding.pm10FaceImg.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.grade_face_anim))
+                        binding.khaiFaceImg.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.grade_face_anim))
                         setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     }
                 }

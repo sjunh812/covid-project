@@ -36,5 +36,8 @@ data class AirMainData(
     var coValue: String = "",
     // 아황산가스
     var so2Grade: String = "",
-    var so2Value: String = ""
+    var so2Value: String = "",
+    // 통합대기환경
+    var khaiGrade: String = "",
+    var khaiValue: String = ""
 ): Parcelable

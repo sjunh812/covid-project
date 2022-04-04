@@ -147,29 +147,29 @@ class Utils {
             }
         }
 
-        fun setGradeFace(imageView: ImageView, grade: String, isPm10: Boolean = false) {
+        fun setGradeFace(imageView: ImageView, grade: String, isKhai: Boolean = false) {
             when(grade) {
                 "좋음" -> {
                     imageView.setImageResource(
-                        if(isPm10) R.drawable.ic_happy_face
+                        if(isKhai) R.drawable.ic_happy_face
                         else R.drawable.ic_happy_face_small
                     )
                 }
                 "보통" -> {
                     imageView.setImageResource(
-                        if(isPm10) R.drawable.ic_normal_face
+                        if(isKhai) R.drawable.ic_normal_face
                         else R.drawable.ic_normal_face_small
                     )
                 }
                 "나쁨" -> {
                     imageView.setImageResource(
-                        if(isPm10) R.drawable.ic_sad_face
+                        if(isKhai) R.drawable.ic_sad_face
                         else R.drawable.ic_sad_face_small
                     )
                 }
                 "매우나쁨" -> {
                     imageView.setImageResource(
-                        if(isPm10) R.drawable.ic_bad_face
+                        if(isKhai) R.drawable.ic_bad_face
                         else R.drawable.ic_bad_face_small
                     )
                 }
@@ -189,7 +189,7 @@ class Utils {
         fun setGradePhrase(grade: String): String {
             return when(grade) {
                 "좋음" -> "최고! 이런날 운동 한번 어떠세요? "
-                "보통" -> "무난! 외출시 코로나 대비 꼭 마스크를 착용하세요."
+                "보통" -> "무난! 외출시 코로나 대비 마스크를 꼭 착용하세요."
                 "나쁨" -> "주의! 외출시 KG94 마스크 착용하세요."
                 "매우나쁨" -> "위험! 오늘은 외출을 삼가하세요."
                 else -> "서버상태가 좋지 않습니다..다시 시도해주세요."
