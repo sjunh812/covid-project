@@ -3,7 +3,9 @@ package org.sjhstudio.howstoday.util
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.text.TextUtils
@@ -124,6 +126,7 @@ class Utils {
             return (px / context.resources.displayMetrics.density).toInt()
         }
 
+        @SuppressLint("SetTextI18n")
         fun setVariationTv(tv: TextView, value: Int) {
             if(value > 0) {
                 tv.text = "(▲${getNumberWithComma(abs(value).toString())})"
@@ -202,6 +205,21 @@ class Utils {
 
         fun setStatusBarColor(activity: Activity, color: String) {
             activity.window?.statusBarColor = Color.parseColor(color)
+        }
+
+        fun showSelectDialog(
+            context: Context,
+            title: CharSequence,
+            items: Array<CharSequence>,
+            selectListener: DialogInterface.OnClickListener
+        ) {
+            AlertDialog.Builder(
+                context,
+                android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
+                .setTitle(title)
+                .setItems(items, selectListener)
+                .setCancelable(true)
+                .show()
         }
     }
 

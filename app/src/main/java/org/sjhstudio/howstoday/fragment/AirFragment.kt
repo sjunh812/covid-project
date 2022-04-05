@@ -1,6 +1,7 @@
 package org.sjhstudio.howstoday.fragment
 
 import android.Manifest
+import android.content.Context
 import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
@@ -16,23 +17,26 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sjhstudio.howstoday.BaseFragment
 import org.sjhstudio.howstoday.MainActivity
 import org.sjhstudio.howstoday.R
+import org.sjhstudio.howstoday.database.LocBookmark
 import org.sjhstudio.howstoday.databinding.FragmentAirBinding
 import org.sjhstudio.howstoday.util.Utils
 import org.sjhstudio.howstoday.viewmodel.AirViewModel
+import org.sjhstudio.howstoday.viewmodel.LocBookmarkViewModel
 
 class AirFragment: BaseFragment() {
 
     private lateinit var binding: FragmentAirBinding
-    private lateinit var vm: AirViewModel
-
+    private lateinit var vm: AirViewModel   // 대기정보 뷰모델
+    private lateinit var bookmarkVM: LocBookmarkViewModel   // 측정소db 뷰모델(AndroidViewModel)
     private lateinit var lm: LocationManager
     private var locationListener = MyLocationListener()
-    private var mLatitude: Double? = null // 현경도
-    private var mLongitude: Double? = null // 현위도
+    private var locBookmarkList: List<LocBookmark>? = null  // 측정소 즐겨찾기 목록
 
     override fun onDetach() {
         super.onDetach()
@@ -50,22 +54,65 @@ class AirFragment: BaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_air, container, false)
-        vm = ViewModelProvider(requireActivity())[AirViewModel::class.java]
         lm = requireContext().getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
+        vm = ViewModelProvider(requireActivity())[AirViewModel::class.java]
+        bookmarkVM = ViewModelProvider(
+            requireActivity(),
+            ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
+        )[LocBookmarkViewModel::class.java]
 
         requestLocationPermission()
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.noticeTv.apply {
-            text = "잠시만 기다려주세요!"
+            text = "잠시만 기다려주세요:)"
             setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         }
+
+        binding.bookmarkImg.setOnClickListener {
+            val curStation = binding.stationTv.text.toString()
+            val curStationAddr = binding.stationAddrTv.text.toString()
+
+            if(isBookmarkStation(curStation) != null) {
+                // 즐겨찾기 삭제
+                bookmarkVM.delete(isBookmarkStation(curStation)!!)
+            } else {
+                // 즐겨찾기 추가
+                bookmarkVM.insert(LocBookmark(curStation, curStationAddr))
+            }
+        }
+
+        binding.bookmarkListImg.setOnClickListener {
+            val items: ArrayList<String> = arrayListOf()
+
+            locBookmarkList?.forEach {
+                items.add(it.station)
+            }
+
+            if(items.isNotEmpty()) {
+                Utils.showSelectDialog(
+                    requireContext(),
+                    "즐겨찾기(불러올 지역을 선택해보세요.)",
+                    items.toTypedArray()
+                ) { _, w ->
+                    locBookmarkList?.let {
+                        vm.updateMainData(it[w].station, it[w].stationAddr)
+                    }
+                }
+            } else {
+                Snackbar.make(binding.bookmarkImg, "즐겨찾기 목록이 비어있습니다:(", 1500).show()
+            }
+        }
+
         setSwipeRefreshLayout()
         observeMainData()
         observeErrorData()
+        observeLocBookmarkResult()
+        observeLocBookmarkList()
     }
 
     private fun requestLocationPermission() {
@@ -75,24 +122,9 @@ class AirFragment: BaseFragment() {
         ))
     }
 
-    fun findLocation() {
+    private fun findLocation() {
         if(Utils.checkLocationPermission(requireContext(), binding.stationTv)) {
             if(lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                val lastNetworkLoc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-                val lastGpsLoc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-
-//                lastNetworkLoc?.let { loc ->
-//                    mLatitude = loc.latitude
-//                    mLongitude = loc.longitude
-//                    vm.updateMainData(mLatitude!!, mLongitude!!)
-//                }
-
-//                lastGpsLoc?.let { loc ->
-//                    mLatitude = loc.latitude
-//                    mLongitude = loc.longitude
-//                    vm.updateMainData(mLatitude!!, mLongitude!!)
-//                }
-
                 lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                     0,  // 통지사이의 최소 시간간격(ms)
                     0f, // 통지사이의 최소 변경거리(m)
@@ -104,32 +136,10 @@ class AirFragment: BaseFragment() {
                     locationListener
                 )
             } else {
-                Snackbar.make(binding.stationTv, "GPS를 켜주세요.", 1000).show()
+                Snackbar.make(binding.stationTv, "현위치를 가져오기 위해 GPS를 켜주세요!", 1000).show()
             }
         } else {
-            binding.noticeTv.text = "위치권한을 허용해주세요!"
-        }
-    }
-
-    private val locationPermissionResult = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        when {
-            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                findLocation()
-                Snackbar.make(binding.stationTv, "정확한 위치권한이 허용되었습니다.", 1000).show()
-            }
-
-            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                findLocation()
-                Snackbar.make(binding.stationTv, "대략적 위치권한이 허용되었습니다.", 1000).show()
-            }
-
-            else -> {
-                findLocation()
-                Snackbar.make(binding.stationTv, "허용된 위치권한이 없습니다.", 1000).show()
-                binding.noticeTv.text = "위치권한을 허용해주세요!"
-            }
+            binding.noticeTv.text = "위치권한을 먼저 허용해주세요!"
         }
     }
 
@@ -150,44 +160,65 @@ class AirFragment: BaseFragment() {
         }
     }
 
+    private fun isBookmarkStation(station: String): LocBookmark? {
+        locBookmarkList?.forEach { lb ->
+            if(lb.station == station) return lb
+        }
+
+        return null
+    }
+
     fun observeMainData() {
         vm.mainData.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing MainData")
             if(it.pm10Grade.isEmpty()) {
-                println("xxx empty")
+                println("xxx MainData is empty")
             } else {
+                // 측정소 즐겨찾기
+                if(isBookmarkStation(it.station) != null) binding.bookmarkImg.setImageResource(R.drawable.ic_star_color)
+                else binding.bookmarkImg.setImageResource(R.drawable.ic_star)
+
                 // 측정소
                 binding.stationTv.text = it.station
                 binding.stationAddrTv.text = "측정소 : ${it.stationAddr}"
+
                 // 측정일
                 binding.dateTimeTv.text = it.dateTime
+
                 // 미세먼지
                 binding.pm10GradeTv.text = it.pm10Grade
                 binding.pm10ValueTv.text = it.pm10Value
                 Utils.setGradeFace(binding.pm10FaceImg, it.pm10Grade)
+
                 // 초미세먼지
                 binding.pm25GradeTv.text = it.pm25Grade
                 binding.pm25ValueTv.text = it.pm25Value
                 Utils.setGradeFace(binding.pm25FaceImg, it.pm25Grade)
+
                 // 이산화질소
                 binding.no2GradeTv.text = it.no2Grade
                 binding.no2ValueTv.text = it.no2Value
                 Utils.setGradeFace(binding.no2FaceImg, it.no2Grade)
+
                 // 오존
                 binding.o3GradeTv.text = it.o3Grade
                 binding.o3ValueTv.text = it.o3Value
                 Utils.setGradeFace(binding.o3FaceImg, it.o3Grade)
+
                 // 일산화탄소
                 binding.coGradeTv.text = it.coGrade
                 binding.coValueTv.text = it.coValue
                 Utils.setGradeFace(binding.coFaceImg, it.coGrade)
+
                 // 아황산가스
                 binding.so2GradeTv.text = it.so2Grade
                 binding.so2ValueTv.text = it.so2Value
                 Utils.setGradeFace(binding.so2FaceImg, it.so2Grade)
+
                 // 통합대기환경
                 binding.khaiGradeTv.text = it.khaiGrade
                 Utils.setGradeFace(binding.khaiFaceImg, it.khaiGrade, true)
+
                 // 배경색(통합대기환경수치 이용)
                 val color = Utils.setGradeColor(it.khaiGrade)
                 Utils.setStatusBarColor(context as MainActivity, color)
@@ -202,6 +233,7 @@ class AirFragment: BaseFragment() {
                         setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     }
                 }
+
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }
@@ -211,6 +243,47 @@ class AirFragment: BaseFragment() {
         vm.errorData.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing ErrorData")
             Snackbar.make(binding.stationTv, it, 1000).show()
+        }
+    }
+
+    fun observeLocBookmarkResult() {
+        bookmarkVM.lbResult.observe(viewLifecycleOwner) {
+            println("xxx ~~~~~~~~~~~Observing LocBookmarkResult")
+            Snackbar.make(binding.stationTv, it, 1000).show()
+            if(it.contains("삭제")) {
+                binding.bookmarkImg.setImageResource(R.drawable.ic_star)
+            } else if(it.contains("추가")) {
+                binding.bookmarkImg.setImageResource(R.drawable.ic_star_color)
+            }
+        }
+    }
+
+    fun observeLocBookmarkList() {
+        bookmarkVM.getAll().observe(viewLifecycleOwner) {
+            println("xxx ~~~~~~~~~~~Observing observeLocBookmarkList")
+            locBookmarkList = it
+        }
+    }
+
+    private val locationPermissionResult = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                findLocation()
+                Snackbar.make(binding.stationTv, "정확한 위치권한이 허용되었습니다.", 1000).show()
+            }
+
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                findLocation()
+                Snackbar.make(binding.stationTv, "대략적 위치권한이 허용되었습니다.", 1000).show()
+            }
+
+            else -> {
+                findLocation()
+                Snackbar.make(binding.stationTv, "허용된 위치권한이 없습니다.", 1000).show()
+                binding.noticeTv.text = "위치권한을 먼저 허용해주세요!"
+            }
         }
     }
 

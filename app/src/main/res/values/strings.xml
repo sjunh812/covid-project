@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Covid-19 현황판</string>
+    <string name="app_name">오늘 어때?</string>
     <string name="covid">코로나</string>
     <string name="fine_dust">미세먼지</string>
     <string name="air_info_source_and_caution">자료 출처 : 환경부/한국환경공단(에어코리아)\n해당 기간에서 제공하는 자료는 \'인증 받지 않은 실시간 자료\' 이므로 자료 오류 및 표출 방식에 따라 값이 다를 수 있습니다.</string>

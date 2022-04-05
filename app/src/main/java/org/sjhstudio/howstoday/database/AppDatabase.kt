@@ -21,8 +21,8 @@ abstract class AppDatabase: RoomDatabase() {
         private var instance: AppDatabase? = null
 
         @Synchronized
-        fun getInstance(context: Context) {
-            if(instance != null) {
+        fun getInstance(context: Context): AppDatabase? {
+            if(instance == null) {
                 // 단 한번의 접근을 위한 lock(다중스레드)
                 synchronized(this) {
                     instance = Room.databaseBuilder(
@@ -32,6 +32,8 @@ abstract class AppDatabase: RoomDatabase() {
                     ).build()
                 }
             }
+
+            return instance
         }
     }
 
