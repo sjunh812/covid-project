@@ -1,7 +1,7 @@
 package org.sjhstudio.howstoday.fragment
 
 import android.Manifest
-import android.content.Context
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
@@ -17,9 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.sjhstudio.howstoday.BaseFragment
 import org.sjhstudio.howstoday.MainActivity
 import org.sjhstudio.howstoday.R
@@ -35,17 +33,30 @@ class AirFragment: BaseFragment() {
     private lateinit var vm: AirViewModel   // 대기정보 뷰모델
     private lateinit var bookmarkVM: LocBookmarkViewModel   // 측정소db 뷰모델(AndroidViewModel)
     private lateinit var lm: LocationManager
+
     private var locationListener = MyLocationListener()
     private var locBookmarkList: List<LocBookmark>? = null  // 측정소 즐겨찾기 목록
+    private var isPause: Boolean = false
 
     override fun onDetach() {
         super.onDetach()
         lm.removeUpdates(locationListener)
+        isPause = false
     }
 
     override fun onPause() {
         super.onPause()
         binding.swipeRefreshLayout.isRefreshing = false
+        binding.progressBar.visibility = View.GONE
+        isPause = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(!isPause) {
+            binding.progressBar.visibility = View.VISIBLE
+            initUI()
+        }
     }
 
     override fun onCreateView(
@@ -68,51 +79,52 @@ class AirFragment: BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.noticeTv.apply {
-            text = "잠시만 기다려주세요:)"
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-        }
-
-        binding.bookmarkImg.setOnClickListener {
-            val curStation = binding.stationTv.text.toString()
-            val curStationAddr = binding.stationAddrTv.text.toString()
-
-            if(isBookmarkStation(curStation) != null) {
-                // 즐겨찾기 삭제
-                bookmarkVM.delete(isBookmarkStation(curStation)!!)
-            } else {
-                // 즐겨찾기 추가
-                bookmarkVM.insert(LocBookmark(curStation, curStationAddr))
-            }
-        }
-
-        binding.bookmarkListImg.setOnClickListener {
-            val items: ArrayList<String> = arrayListOf()
-
-            locBookmarkList?.forEach {
-                items.add(it.station)
-            }
-
-            if(items.isNotEmpty()) {
-                Utils.showSelectDialog(
-                    requireContext(),
-                    "즐겨찾기(불러올 지역을 선택해보세요.)",
-                    items.toTypedArray()
-                ) { _, w ->
-                    locBookmarkList?.let {
-                        vm.updateMainData(it[w].station, it[w].stationAddr)
-                    }
-                }
-            } else {
-                Snackbar.make(binding.bookmarkImg, "즐겨찾기 목록이 비어있습니다:(", 1500).show()
-            }
-        }
-
         setSwipeRefreshLayout()
         observeMainData()
         observeErrorData()
         observeLocBookmarkResult()
         observeLocBookmarkList()
+        binding.bookmarkImg.setOnClickListener(this)
+        binding.bookmarkListImg.setOnClickListener(this)
+    }
+
+    override fun onClick(v: View?) {
+        super.onClick(v)
+        when(v?.id) {
+            R.id.bookmark_img -> {  // 즐겨찾기 추가/삭제
+                val curStation = vm.mainData.value?.station ?: ""
+                val curStationAddr = vm.mainData.value?.stationAddr ?: ""
+
+                if(isBookmarkStation(curStation) != null) { // 삭제
+                    bookmarkVM.delete(isBookmarkStation(curStation)!!)
+                } else {    // 추가
+                    bookmarkVM.insert(LocBookmark(curStation, curStationAddr))
+                }
+            }
+
+            R.id.bookmark_list_img -> { // 즐겨찾기 목록
+                val items: ArrayList<String> = arrayListOf()
+
+                locBookmarkList?.forEach {
+                    items.add(it.station)
+                }
+
+                if(items.isNotEmpty()) {
+                    Utils.showSelectDialog(
+                        requireContext(),
+                        "대기상태를 확인할 지역을 선택해보세요!",
+                        items.toTypedArray()
+                    ) { _, w ->
+                        locBookmarkList?.let {
+                            binding.progressBar.visibility = View.VISIBLE
+                            vm.updateMainData(it[w].station, it[w].stationAddr)
+                        }
+                    }
+                } else {
+                    Snackbar.make(binding.bookmarkImg, "즐겨찾기 목록이 비어있습니다:(", 1500).show()
+                }
+            }
+        }
     }
 
     private fun requestLocationPermission() {
@@ -168,73 +180,98 @@ class AirFragment: BaseFragment() {
         return null
     }
 
+    fun initUI() {
+        Utils.setStatusBarColor(context as MainActivity, R.color.background)
+        binding.container.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+        binding.bookmarkImg.setImageResource(R.drawable.ic_star)
+        binding.coFaceImg.setImageResource(0)
+        binding.pm10FaceImg.setImageResource(0)
+        binding.pm25FaceImg.setImageResource(0)
+        binding.no2FaceImg.setImageResource(0)
+        binding.o3FaceImg.setImageResource(0)
+        binding.so2FaceImg.setImageResource(0)
+        binding.khaiFaceImg.clearAnimation()
+        binding.noticeTv.apply {
+            text = "잠시만 기다려주세요.."
+            binding.khaiFaceImg.setImageResource(R.drawable.ic_wink_face)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
     fun observeMainData() {
-        vm.mainData.observe(viewLifecycleOwner) {
-            println("xxx ~~~~~~~~~~~Observing MainData")
-            if(it.pm10Grade.isEmpty()) {
-                println("xxx MainData is empty")
-            } else {
-                // 측정소 즐겨찾기
-                if(isBookmarkStation(it.station) != null) binding.bookmarkImg.setImageResource(R.drawable.ic_star_color)
-                else binding.bookmarkImg.setImageResource(R.drawable.ic_star)
+        println("xxx ~~~~~~~~~~~Observing MainData")
+        vm.mainData.observe(viewLifecycleOwner) { mainData ->
+            val airInfo = mainData.airInfo
 
-                // 측정소
-                binding.stationTv.text = it.station
-                binding.stationAddrTv.text = "측정소 : ${it.stationAddr}"
+            airInfo?.let { info ->
+                binding.progressBar.visibility = View.GONE
+                binding.swipeRefreshLayout.isRefreshing = false
 
-                // 측정일
-                binding.dateTimeTv.text = it.dateTime
-
-                // 미세먼지
-                binding.pm10GradeTv.text = it.pm10Grade
-                binding.pm10ValueTv.text = it.pm10Value
-                Utils.setGradeFace(binding.pm10FaceImg, it.pm10Grade)
-
-                // 초미세먼지
-                binding.pm25GradeTv.text = it.pm25Grade
-                binding.pm25ValueTv.text = it.pm25Value
-                Utils.setGradeFace(binding.pm25FaceImg, it.pm25Grade)
-
-                // 이산화질소
-                binding.no2GradeTv.text = it.no2Grade
-                binding.no2ValueTv.text = it.no2Value
-                Utils.setGradeFace(binding.no2FaceImg, it.no2Grade)
-
-                // 오존
-                binding.o3GradeTv.text = it.o3Grade
-                binding.o3ValueTv.text = it.o3Value
-                Utils.setGradeFace(binding.o3FaceImg, it.o3Grade)
-
-                // 일산화탄소
-                binding.coGradeTv.text = it.coGrade
-                binding.coValueTv.text = it.coValue
-                Utils.setGradeFace(binding.coFaceImg, it.coGrade)
-
-                // 아황산가스
-                binding.so2GradeTv.text = it.so2Grade
-                binding.so2ValueTv.text = it.so2Value
-                Utils.setGradeFace(binding.so2FaceImg, it.so2Grade)
-
-                // 통합대기환경
-                binding.khaiGradeTv.text = it.khaiGrade
-                Utils.setGradeFace(binding.khaiFaceImg, it.khaiGrade, true)
-
-                // 배경색(통합대기환경수치 이용)
-                val color = Utils.setGradeColor(it.khaiGrade)
-                Utils.setStatusBarColor(context as MainActivity, color)
-                binding.container.setBackgroundColor(Color.parseColor(color))
-                binding.noticeTv.apply {
-                    text = Utils.setGradePhrase(it.khaiGrade)
-                    if(text.contains("서버")) {
+                if(info.pm10Flag == "점검및교정" || info.pm25Flag == "점검및교정" || info.coFlag == "점검및교정"
+                    || info.no2Flag == "점검및교정" || info.o3Flag == "점검및교정" || info.so2Flag == "점검및교정") {
+                    initUI()
+                    binding.noticeTv.apply {
+                        text = Utils.setGradePhrase("")
                         binding.khaiFaceImg.setImageResource(R.drawable.ic_sorrow_face)
                         setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-                    } else {
+                    }
+                } else {
+                    // 측정소 즐겨찾기
+                    if(isBookmarkStation(mainData.station) != null) binding.bookmarkImg.setImageResource(R.drawable.ic_star_color)
+                    else binding.bookmarkImg.setImageResource(R.drawable.ic_star)
+
+                    // 측정소
+                    println("xxx 측정소 : ${mainData.stationAddr}")
+                    binding.stationTv.text = mainData.station
+                    binding.stationAddrTv.text = "측정소 : ${mainData.stationAddr}"
+
+                    // 측정일
+                    binding.dateTimeTv.text = mainData.dateTime
+
+                    // 미세먼지
+                    binding.pm10GradeTv.text = Utils.airGrade(airInfo.pm10Grade ?: -1)
+                    binding.pm10ValueTv.text = "(${airInfo.pm10Value?:""}㎍/㎥)"
+                    Utils.setGradeFace(binding.pm10FaceImg, binding.pm10GradeTv.text.toString())
+
+                    // 초미세먼지
+                    binding.pm25GradeTv.text = Utils.airGrade(airInfo.pm25Grade ?: -1)
+                    binding.pm25ValueTv.text = "${airInfo.pm25Value?:""}㎍/㎥"
+                    Utils.setGradeFace(binding.pm25FaceImg, binding.pm25GradeTv.text.toString())
+
+                    // 이산화질소
+                    binding.no2GradeTv.text = Utils.airGrade(airInfo.no2Grade ?: -1)
+                    binding.no2ValueTv.text = "${airInfo.no2Value?:""}ppm"
+                    Utils.setGradeFace(binding.no2FaceImg,  binding.no2GradeTv.text.toString())
+
+                    // 오존
+                    binding.o3GradeTv.text = Utils.airGrade(airInfo.o3Grade ?: -1)
+                    binding.o3ValueTv.text = "${airInfo.o3Value?:""}ppm"
+                    Utils.setGradeFace(binding.o3FaceImg, binding.o3GradeTv.text.toString())
+
+                    // 일산화탄소
+                    binding.coGradeTv.text = Utils.airGrade(airInfo.coGrade ?: -1)
+                    binding.coValueTv.text = "${airInfo.coValue?:""}ppm"
+                    Utils.setGradeFace(binding.coFaceImg, binding.coGradeTv.text.toString())
+
+                    // 아황산가스
+                    binding.so2GradeTv.text = Utils.airGrade(airInfo.no2Grade ?: -1)
+                    binding.so2ValueTv.text = "${airInfo.so2Value?:""}ppm"
+                    Utils.setGradeFace(binding.so2FaceImg, binding.so2GradeTv.text.toString())
+
+                    // 통합대기환경
+                    binding.khaiGradeTv.text = Utils.airGrade(airInfo.khaiGrade ?: -1)
+                    Utils.setGradeFace(binding.khaiFaceImg, binding.khaiGradeTv.text.toString(), true)
+                    val color = Utils.setGradeColor(binding.khaiGradeTv.text.toString())
+                    Utils.setStatusBarColor(context as MainActivity, color)
+                    binding.container.setBackgroundColor(Color.parseColor(color))
+                    binding.noticeTv.apply {
+                        text = Utils.setGradePhrase(binding.khaiGradeTv.text.toString())
                         binding.khaiFaceImg.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.grade_face_anim))
                         setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     }
                 }
 
-                binding.swipeRefreshLayout.isRefreshing = false
             }
         }
     }

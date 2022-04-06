@@ -4,21 +4,15 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.databinding.ActivityMainBinding
 import org.sjhstudio.howstoday.fragment.AirFragment
 import org.sjhstudio.howstoday.fragment.CovidFragment
-import org.sjhstudio.howstoday.viewmodel.LocBookmarkViewModel
 
 class MainActivity: BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
-    private var covidFragment = CovidFragment()
-    private var airFragment = AirFragment()
-
     private var isReady = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +39,7 @@ class MainActivity: BaseActivity() {
 
         initNavigationBar()
         supportFragmentManager.beginTransaction()
-            .add(R.id.container, covidFragment, "covidFragment")
+            .replace(R.id.container, CovidFragment(), "covidFragment")
             .commit()
 
     }
@@ -56,7 +50,7 @@ class MainActivity: BaseActivity() {
                 val transaction = supportFragmentManager.beginTransaction()
 
                 when(it.itemId) {
-                    R.id.tab_covid -> transaction.replace(R.id.container, covidFragment, "covidFragment")
+                    R.id.tab_covid -> transaction.replace(R.id.container, CovidFragment(), "covidFragment")
 
                     R.id.tab_air -> transaction.replace(R.id.container, AirFragment(), "airFragment")
                 }

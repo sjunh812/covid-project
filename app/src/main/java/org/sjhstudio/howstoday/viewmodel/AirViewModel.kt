@@ -8,15 +8,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.sjhstudio.howstoday.database.AppDatabase
-import org.sjhstudio.howstoday.database.LocBookmarkDao
 import org.sjhstudio.howstoday.model.AirInfo
 import org.sjhstudio.howstoday.model.AirMainData
 import org.sjhstudio.howstoday.model.AirStation
 import org.sjhstudio.howstoday.model.TM
 import org.sjhstudio.howstoday.network.CallUrl
 import org.sjhstudio.howstoday.network.RetrofitClient
-import org.sjhstudio.howstoday.util.Utils
 import org.sjhstudio.howstoday.util.Val
 import retrofit2.await
 
@@ -41,32 +38,10 @@ class AirViewModel: ViewModel() {
             val airInfo = withContext(IO) { callAirInfo(stationName) }
 
             _mainData.value = _mainData.value?.apply {
-                // 측정소
                 this.station = stationName
                 this.stationAddr = stationAddr
-                // 측정일
-                dateTime = airInfo?.dataTime?:""
-                // 미세먼지
-                pm10Grade = Utils.airGrade(airInfo?.pm10Grade?:-1)
-                pm10Value = "(${airInfo?.pm10Value?:""}㎍/㎥)"
-                // 초미세먼지
-                pm25Grade = Utils.airGrade(airInfo?.pm25Grade?:-1)
-                pm25Value = "${airInfo?.pm25Value?:""}㎍/㎥"
-                // 이산화질소
-                no2Grade = Utils.airGrade(airInfo?.no2Grade?:-1)
-                no2Value = "${airInfo?.no2Value?:""}ppm"
-                // 오존
-                o3Grade = Utils.airGrade(airInfo?.o3Grade?:-1)
-                o3Value = "${airInfo?.o3Value?:""}ppm"
-                // 일산화탄소
-                coGrade = Utils.airGrade(airInfo?.coGrade?:-1)
-                coValue = "${airInfo?.coValue?:""}ppm"
-                // 아황산가스
-                so2Grade = Utils.airGrade(airInfo?.so2Grade?:-1)
-                so2Value = "${airInfo?.so2Value?:""}ppm"
-                // 통합대기환경
-                khaiGrade = Utils.airGrade(airInfo?.khaiGrade?:-1)
-                khaiValue = airInfo?.khaiValue?:""
+                this.dateTime = airInfo?.dataTime?:""
+                this.airInfo = airInfo
             }
 
             updateErrorData("$stationName 불러오기 완료!")
@@ -80,32 +55,10 @@ class AirViewModel: ViewModel() {
             val airInfo = withContext(IO) { callAirInfo(airStation?.stationName) }
 
             _mainData.value = _mainData.value?.apply {
-                // 측정소
-                station = airStation?.stationName?:""
-                stationAddr = airStation?.addr?:""
-                // 측정일
-                dateTime = airInfo?.dataTime?:""
-                // 미세먼지
-                pm10Grade = Utils.airGrade(airInfo?.pm10Grade?:-1)
-                pm10Value = "(${airInfo?.pm10Value?:""}㎍/㎥)"
-                // 초미세먼지
-                pm25Grade = Utils.airGrade(airInfo?.pm25Grade?:-1)
-                pm25Value = "${airInfo?.pm25Value?:""}㎍/㎥"
-                // 이산화질소
-                no2Grade = Utils.airGrade(airInfo?.no2Grade?:-1)
-                no2Value = "${airInfo?.no2Value?:""}ppm"
-                // 오존
-                o3Grade = Utils.airGrade(airInfo?.o3Grade?:-1)
-                o3Value = "${airInfo?.o3Value?:""}ppm"
-                // 일산화탄소
-                coGrade = Utils.airGrade(airInfo?.coGrade?:-1)
-                coValue = "${airInfo?.coValue?:""}ppm"
-                // 아황산가스
-                so2Grade = Utils.airGrade(airInfo?.so2Grade?:-1)
-                so2Value = "${airInfo?.so2Value?:""}ppm"
-                // 통합대기환경
-                khaiGrade = Utils.airGrade(airInfo?.khaiGrade?:-1)
-                khaiValue = airInfo?.khaiValue?:""
+                this.station = airStation?.stationName?:""
+                this.stationAddr = airStation?.addr?:""
+                this.dateTime = airInfo?.dataTime?:""
+                this.airInfo = airInfo
             }
         }
     }

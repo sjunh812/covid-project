@@ -176,6 +176,12 @@ class Utils {
                         else R.drawable.ic_bad_face_small
                     )
                 }
+                else -> {
+                    imageView.setImageResource(
+                        if(isKhai) R.drawable.ic_sorrow_face
+                        else R.drawable.ic_sorrow_face_small
+                    )
+                }
             }
         }
 
@@ -185,7 +191,7 @@ class Utils {
                 "보통" -> "#3AB244"
                 "나쁨" -> "#FF894F"
                 "매우나쁨" -> "#FF3F3F"
-                else -> "#FFFFFF"
+                else -> "#A9A9A9"
             }
         }
 
@@ -195,7 +201,7 @@ class Utils {
                 "보통" -> "무난! 외출시 코로나 대비 마스크를 꼭 착용하세요."
                 "나쁨" -> "주의! 외출시 KG94 마스크 착용하세요."
                 "매우나쁨" -> "위험! 오늘은 외출을 삼가하세요."
-                else -> "서버상태가 좋지 않습니다..다시 시도해주세요."
+                else -> "서버 데이터 점검 및 교정중입니다."
             }
         }
 
@@ -216,9 +222,9 @@ class Utils {
             AlertDialog.Builder(
                 context,
                 android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
-                .setTitle(title)
                 .setItems(items, selectListener)
                 .setCancelable(true)
+                .setTitle(title)
                 .show()
         }
     }
