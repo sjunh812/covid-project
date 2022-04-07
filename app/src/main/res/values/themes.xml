@@ -16,10 +16,7 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="Theme.SplashScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/background</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="l">true</item>
+    <style name="Theme.SplashScreen" parent="Theme.HowsToday">
         <!-- Splash screen -->
         <item name="android:windowSplashScreenBackground" tools:targetApi="s">@color/main_700</item>
         <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@mipmap/ic_launcher</item>

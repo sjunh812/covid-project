@@ -31,9 +31,8 @@ class AirFragment: BaseFragment() {
 
     private lateinit var binding: FragmentAirBinding
     private lateinit var vm: AirViewModel   // 대기정보 뷰모델
-    private lateinit var bookmarkVM: LocBookmarkViewModel   // 측정소db 뷰모델(AndroidViewModel)
+    private lateinit var bookmarkVM: LocBookmarkViewModel   // 측정소 db 뷰모델(AndroidViewModel)
     private lateinit var lm: LocationManager
-
     private var locationListener = MyLocationListener()
     private var locBookmarkList: List<LocBookmark>? = null  // 측정소 즐겨찾기 목록
     private var isPause: Boolean = false
@@ -81,7 +80,7 @@ class AirFragment: BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setSwipeRefreshLayout()
         observeMainData()
-        observeErrorData()
+        observeMessageData()
         observeLocBookmarkResult()
         observeLocBookmarkList()
         binding.bookmarkImg.setOnClickListener(this)
@@ -191,6 +190,7 @@ class AirFragment: BaseFragment() {
         binding.o3FaceImg.setImageResource(0)
         binding.so2FaceImg.setImageResource(0)
         binding.khaiFaceImg.clearAnimation()
+        binding.stationAddrTv.text = ""
         binding.noticeTv.apply {
             text = "잠시만 기다려주세요.."
             binding.khaiFaceImg.setImageResource(R.drawable.ic_wink_face)
@@ -199,7 +199,7 @@ class AirFragment: BaseFragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    fun observeMainData() {
+    private fun observeMainData() {
         println("xxx ~~~~~~~~~~~Observing MainData")
         vm.mainData.observe(viewLifecycleOwner) { mainData ->
             val airInfo = mainData.airInfo
@@ -276,14 +276,14 @@ class AirFragment: BaseFragment() {
         }
     }
 
-    fun observeErrorData() {
-        vm.errorData.observe(viewLifecycleOwner) {
+    private fun observeMessageData() {
+        vm.messageData.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing ErrorData")
             Snackbar.make(binding.stationTv, it, 1000).show()
         }
     }
 
-    fun observeLocBookmarkResult() {
+    private fun observeLocBookmarkResult() {
         bookmarkVM.lbResult.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing LocBookmarkResult")
             Snackbar.make(binding.stationTv, it, 1000).show()
@@ -295,7 +295,7 @@ class AirFragment: BaseFragment() {
         }
     }
 
-    fun observeLocBookmarkList() {
+    private fun observeLocBookmarkList() {
         bookmarkVM.getAll().observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing observeLocBookmarkList")
             locBookmarkList = it

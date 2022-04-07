@@ -25,9 +25,9 @@ class AirViewModel: ViewModel() {
     val mainData: LiveData<AirMainData>
         get() = _mainData
 
-    private var _errorData = MutableLiveData<String>()
-    val errorData: LiveData<String>
-        get() = _errorData
+    private var _messageData = MutableLiveData<String>()
+    val messageData: LiveData<String>
+        get() = _messageData
 
     init {
         _mainData.value = AirMainData()
@@ -55,9 +55,9 @@ class AirViewModel: ViewModel() {
             val airInfo = withContext(IO) { callAirInfo(airStation?.stationName) }
 
             _mainData.value = _mainData.value?.apply {
-                this.station = airStation?.stationName?:""
-                this.stationAddr = airStation?.addr?:""
-                this.dateTime = airInfo?.dataTime?:""
+                this.station = airStation?.stationName ?: ""
+                this.stationAddr = airStation?.addr ?: ""
+                this.dateTime = airInfo?.dataTime ?: ""
                 this.airInfo = airInfo
             }
         }
@@ -65,13 +65,12 @@ class AirViewModel: ViewModel() {
 
     fun updateErrorData(errMsg: String) {
         viewModelScope.launch {
-            _errorData.value = errMsg
+            _messageData.value = errMsg
         }
     }
 
     private suspend fun callTM(latitude: Double, longitude: Double): TM? {
-        println("xxx callTM()")
-
+        println("xxx callTM() : 위,경도로 TM좌표 산출 API")
         val params = HashMap<String, String>()
         params["x"] = longitude.toString()
         params["y"] = latitude.toString()
@@ -94,7 +93,7 @@ class AirViewModel: ViewModel() {
     }
 
     private suspend fun callAirStation(tmX: Double?, tmY: Double?): AirStation? {
-        println("xxx callAirStation()")
+        println("xxx callAirStation() : TM좌표로 대기 측정소 산출 API")
         if(tmX == null || tmY == null) return null
 
         val params = HashMap<String, String>()
@@ -119,7 +118,7 @@ class AirViewModel: ViewModel() {
     }
 
     suspend fun callAirInfo(stationName: String?): AirInfo? {
-        println("xxx callAirInfo()")
+        println("xxx callAirInfo() : 측정소명을 이용해 대기정보 산출 API")
         if(stationName == null) return null
 
         val params = HashMap<String, String>()
@@ -139,7 +138,7 @@ class AirViewModel: ViewModel() {
             return value.response.body.items[0]
         } catch(e: Exception) {
             e.printStackTrace()
-            Log.e(TAG, e.message?:"callAirInfo() error..")
+            Log.e(TAG, e.message ?: "callAirInfo() error..")
             updateErrorData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
         }
 
