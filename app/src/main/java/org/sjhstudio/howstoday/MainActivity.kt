@@ -20,7 +20,11 @@ class MainActivity: BaseActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         launch {
-            delay(500)
+            initNavigationBar()
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container, CovidFragment(), "covidFragment")
+                .commit()
+            delay(1000)
             isReady = true
             println("xxx 화면출력 시작")
         }
@@ -36,12 +40,6 @@ class MainActivity: BaseActivity() {
                 }
             }
         })
-
-        initNavigationBar()
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.container, CovidFragment(), "covidFragment")
-            .commit()
-
     }
 
     private fun initNavigationBar() {

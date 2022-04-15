@@ -37,14 +37,17 @@ class AirViewModel: ViewModel() {
         viewModelScope.launch {
             val airInfo = withContext(IO) { callAirInfo(stationName) }
 
-            _mainData.value = _mainData.value?.apply {
-                this.station = stationName
-                this.stationAddr = stationAddr
-                this.dateTime = airInfo?.dataTime?:""
-                this.airInfo = airInfo
+            if(airInfo != null) {
+                _mainData.value = _mainData.value?.apply {
+                    this.station = stationName
+                    this.stationAddr = stationAddr
+                    this.dateTime = airInfo?.dataTime?:""
+                    this.airInfo = airInfo
+                }
+                updateMessageData("$stationName 불러오기 완료!")
+            } else {
+                updateMessageData("$stationName 불러오기 완료!")
             }
-
-            updateErrorData("$stationName 불러오기 완료!")
         }
     }
 
@@ -63,7 +66,7 @@ class AirViewModel: ViewModel() {
         }
     }
 
-    fun updateErrorData(errMsg: String) {
+    fun updateMessageData(errMsg: String) {
         viewModelScope.launch {
             _messageData.value = errMsg
         }
@@ -86,7 +89,7 @@ class AirViewModel: ViewModel() {
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e(TAG, e.message?:"callTM() error..")
-            updateErrorData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
+            updateMessageData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
         }
 
         return null
@@ -107,11 +110,17 @@ class AirViewModel: ViewModel() {
 
         try {
             val value = call.await()
+
+            if(value.response.header.resultCode != "00") {
+                updateMessageData(value.response.header.resultMsg)
+                return null
+            }
+
             return value.response.body.items[0]
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e(TAG, e.message?:"callAirStation() error..")
-            updateErrorData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
+            updateMessageData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
         }
 
         return null
@@ -135,11 +144,17 @@ class AirViewModel: ViewModel() {
 
         try {
             val value = call.await()
+
+            if(value.response.header.resultCode != "00") {
+                updateMessageData(value.response.header.resultMsg)
+                return null
+            }
+
             return value.response.body.items[0]
         } catch(e: Exception) {
             e.printStackTrace()
             Log.e(TAG, e.message ?: "callAirInfo() error..")
-            updateErrorData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
+            updateMessageData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
         }
 
         return null

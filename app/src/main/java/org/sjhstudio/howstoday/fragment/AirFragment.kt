@@ -163,7 +163,7 @@ class AirFragment: BaseFragment() {
                         findLocation()
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        vm.updateErrorData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
+                        vm.updateMessageData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
                         binding.swipeRefreshLayout.isRefreshing = false
                     }
                 }
@@ -194,6 +194,15 @@ class AirFragment: BaseFragment() {
         binding.noticeTv.apply {
             text = "잠시만 기다려주세요.."
             binding.khaiFaceImg.setImageResource(R.drawable.ic_wink_face)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+    }
+
+    fun setFailedUI() {
+        initUI()
+        binding.noticeTv.apply {
+            text = "서버상태가 좋지않습니다.. 잠시후 다시 시도해주세요."
+            binding.khaiFaceImg.setImageResource(R.drawable.ic_sorrow_face)
             setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         }
     }
@@ -279,7 +288,12 @@ class AirFragment: BaseFragment() {
     private fun observeMessageData() {
         vm.messageData.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing ErrorData")
-            Snackbar.make(binding.stationTv, it, 1000).show()
+            if(it.contains("서버")) {
+                setFailedUI()
+            }
+            binding.swipeRefreshLayout.isRefreshing = false
+            binding.progressBar.visibility = View.GONE
+            Snackbar.make(binding.stationTv, it, 1500).show()
         }
     }
 
