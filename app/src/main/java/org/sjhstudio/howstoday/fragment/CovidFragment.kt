@@ -28,9 +28,9 @@ import com.github.mikephil.charting.utils.MPPointF
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.BaseFragment
-import org.sjhstudio.howstoday.MainActivity
+import org.sjhstudio.howstoday.ui.MainActivity
 import org.sjhstudio.howstoday.R
-import org.sjhstudio.howstoday.adapter.CovidSidoInfStateAdapter
+import org.sjhstudio.howstoday.ui.adapter.CovidSidoInfStateAdapter
 import org.sjhstudio.howstoday.databinding.FragmentCovidBinding
 import org.sjhstudio.howstoday.util.Utils
 import org.sjhstudio.howstoday.viewmodel.CovidViewModel

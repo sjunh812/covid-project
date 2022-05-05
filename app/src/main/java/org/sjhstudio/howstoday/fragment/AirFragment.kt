@@ -19,7 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.BaseFragment
-import org.sjhstudio.howstoday.MainActivity
+import org.sjhstudio.howstoday.ui.MainActivity
 import org.sjhstudio.howstoday.R
 import org.sjhstudio.howstoday.database.LocBookmark
 import org.sjhstudio.howstoday.databinding.FragmentAirBinding

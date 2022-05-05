@@ -13,7 +13,7 @@ import org.sjhstudio.howstoday.model.CsiItem
 import org.sjhstudio.howstoday.model.CovidMainData
 import org.sjhstudio.howstoday.network.RetrofitClient
 import org.sjhstudio.howstoday.util.Utils
-import org.sjhstudio.howstoday.util.Val
+import org.sjhstudio.howstoday.util.Constants
 import retrofit2.await
 
 class CovidViewModel: ViewModel() {
@@ -128,13 +128,13 @@ class CovidViewModel: ViewModel() {
         println("xxx callCovidInfState()")
 
         val params = HashMap<String, String>()
-        params["serviceKey"] = Val.COVID_INF_STATE_API_KEY
+        params["serviceKey"] = Constants.COVID_INF_STATE_API_KEY
         params["pageNo"] = "1"
         params["numOfRows"] = "8"
         params["startCreateDt"] = Utils.getFewDaysAgo(8, "yyyyMMdd")
         params["endCreateDt"] = Utils.getFewDaysAgo(0, "yyyyMMdd")
 
-        val retrofitClient = RetrofitClient(Val.XML)
+        val retrofitClient = RetrofitClient(Constants.XML)
         val call = retrofitClient.retrofitApi.getCovidInfState(params)
 
         try {
@@ -163,7 +163,7 @@ class CovidViewModel: ViewModel() {
         println("xxx callCovidInfState2()")
 
         val params = HashMap<String, String>()
-        params["serviceKey"] = Val.COVID_SIDO_INF_STATE_API_KEY
+        params["serviceKey"] = Constants.COVID_SIDO_INF_STATE_API_KEY
         params["pageNo"] = "1"
         params["numOfRows"] = "10"
         if(Utils.compareDate()) {
@@ -174,7 +174,7 @@ class CovidViewModel: ViewModel() {
             params["endCreateDt"] = Utils.getFewDaysAgo(1, "yyyyMMdd")
         }
 
-        val retrofitClient = RetrofitClient(Val.XML)
+        val retrofitClient = RetrofitClient(Constants.XML)
         val call = retrofitClient.retrofitApi.getCovidSidoInfState(params)
 
         try {
@@ -209,13 +209,13 @@ class CovidViewModel: ViewModel() {
 
         val params = HashMap<String, String>()
         val fewDay = if(Utils.compareDate()) 0 else 1
-        params["serviceKey"] = Val.COVID_SIDO_INF_STATE_API_KEY
+        params["serviceKey"] = Constants.COVID_SIDO_INF_STATE_API_KEY
         params["pageNo"] = "1"
         params["numOfRows"] = "10"
         params["startCreateDt"] = Utils.getFewDaysAgo(fewDay, "yyyyMMdd")
         params["endCreateDt"] = Utils.getFewDaysAgo(fewDay, "yyyyMMdd")
 
-        val retrofitClient = RetrofitClient(Val.XML)
+        val retrofitClient = RetrofitClient(Constants.XML)
         val call = retrofitClient.retrofitApi.getCovidSidoInfState(params)
 
         try {

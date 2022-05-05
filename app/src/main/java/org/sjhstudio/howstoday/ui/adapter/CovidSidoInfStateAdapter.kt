@@ -1,4 +1,4 @@
-package org.sjhstudio.howstoday.adapter
+package org.sjhstudio.howstoday.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View

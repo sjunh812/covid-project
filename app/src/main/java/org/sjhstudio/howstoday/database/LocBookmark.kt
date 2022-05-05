@@ -1,6 +1,7 @@
 package org.sjhstudio.howstoday.database
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 /**

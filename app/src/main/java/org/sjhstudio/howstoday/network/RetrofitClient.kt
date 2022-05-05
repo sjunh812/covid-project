@@ -7,12 +7,12 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
-import org.sjhstudio.howstoday.util.Val
+import org.sjhstudio.howstoday.util.Constants
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-class RetrofitClient(converter: String = Val.GSON, url: String = CallUrl.OPEN_API_URL): Interceptor {
+class RetrofitClient(converter: String = Constants.GSON, url: String = CallUrl.OPEN_API_URL): Interceptor {
 
     private val TAG = "RetrofitClient"
 
@@ -35,7 +35,7 @@ class RetrofitClient(converter: String = Val.GSON, url: String = CallUrl.OPEN_AP
             .client(mOkHttpClient)
             .addConverterFactory(
                 when(converter) {
-                    Val.XML -> {
+                    Constants.XML -> {
                         TikXmlConverterFactory.create(TikXml.Builder()
                             .exceptionOnUnreadXml(false)
                             .build()

@@ -12,9 +12,8 @@ import org.sjhstudio.howstoday.model.AirInfo
 import org.sjhstudio.howstoday.model.AirMainData
 import org.sjhstudio.howstoday.model.AirStation
 import org.sjhstudio.howstoday.model.TM
-import org.sjhstudio.howstoday.network.CallUrl
 import org.sjhstudio.howstoday.network.RetrofitClient
-import org.sjhstudio.howstoday.util.Val
+import org.sjhstudio.howstoday.util.Constants
 import retrofit2.await
 
 class AirViewModel: ViewModel() {
@@ -80,8 +79,8 @@ class AirViewModel: ViewModel() {
         params["input_coord"] = "WGS84"
         params["output_coord"] = "TM"
 
-        val retrofitClient = RetrofitClient(Val.GSON, CallUrl.KAKAO_URL)
-        val call = retrofitClient.retrofitApi.getTranscoord(Val.TRANS_COORD_API_KEY, params)
+        val retrofitClient = RetrofitClient(Constants.GSON, CallUrl.KAKAO_URL)
+        val call = retrofitClient.retrofitApi.getTranscoord(Constants.TRANS_COORD_API_KEY, params)
 
         try {
             val value = call.await()
@@ -103,9 +102,9 @@ class AirViewModel: ViewModel() {
         params["tmX"] = tmX.toString()
         params["tmY"] = tmY.toString()
         params["returnType"] = "json"
-        params["serviceKey"] = Val.AIR_STATION_API_KEY
+        params["serviceKey"] = Constants.AIR_STATION_API_KEY
 
-        val retrofitClient = RetrofitClient(Val.GSON, CallUrl.APIS_URL)
+        val retrofitClient = RetrofitClient(Constants.GSON, CallUrl.APIS_URL)
         val call = retrofitClient.retrofitApi.getAirStation(params)
 
         try {
@@ -136,10 +135,10 @@ class AirViewModel: ViewModel() {
         params["pageNo"] = "1"
         params["numOfRows"] = "100"
         params["returnType"] = "json"
-        params["serviceKey"] = Val.AIR_INFO_API_KEY
+        params["serviceKey"] = Constants.AIR_INFO_API_KEY
         params["ver"] = "1.0"
 
-        val retrofitClient = RetrofitClient(Val.GSON, CallUrl.APIS_URL)
+        val retrofitClient = RetrofitClient(Constants.GSON, CallUrl.APIS_URL)
         val call = retrofitClient.retrofitApi.getAirInfo(params)
 
         try {
