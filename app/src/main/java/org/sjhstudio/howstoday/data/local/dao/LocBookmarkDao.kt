@@ -1,7 +1,8 @@
-package org.sjhstudio.howstoday.database
+package org.sjhstudio.howstoday.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import org.sjhstudio.howstoday.model.LocBookmark
 
 @Dao
 interface LocBookmarkDao {

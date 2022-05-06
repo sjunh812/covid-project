@@ -6,7 +6,9 @@ import android.app.Application
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class MyApplication: Application() {
 
     companion object {

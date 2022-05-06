@@ -1,4 +1,4 @@
-package org.sjhstudio.howstoday.fragment
+package org.sjhstudio.howstoday.ui.fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.components.MarkerView
@@ -26,6 +26,7 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.MPPointF
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.BaseFragment
 import org.sjhstudio.howstoday.ui.MainActivity
@@ -35,12 +36,12 @@ import org.sjhstudio.howstoday.databinding.FragmentCovidBinding
 import org.sjhstudio.howstoday.util.Utils
 import org.sjhstudio.howstoday.viewmodel.CovidViewModel
 
+@AndroidEntryPoint
 class CovidFragment: BaseFragment() {
 
     private lateinit var binding: FragmentCovidBinding
-    private lateinit var vm: CovidViewModel
-
-    private lateinit var covidSidoInfStateAdapter: CovidSidoInfStateAdapter
+    private val covidVm: CovidViewModel by viewModels()
+    private val covidSidoInfStateAdapter: CovidSidoInfStateAdapter by lazy { CovidSidoInfStateAdapter(covidVm) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,7 +49,6 @@ class CovidFragment: BaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_covid, container, false)
-        vm = ViewModelProvider(requireActivity())[CovidViewModel::class.java]
         return binding.root
     }
 
@@ -106,7 +106,7 @@ class CovidFragment: BaseFragment() {
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
                     e?.let {
                         println("xxx onValueSelected()!!")
-                        vm.selectBarChart(e.x.toInt()-1)
+                        covidVm.selectBarChart(e.x.toInt()-1)
                     }
                 }
 
@@ -136,7 +136,6 @@ class CovidFragment: BaseFragment() {
     }
 
     private fun initCovidSidoInfStateRv() {
-        covidSidoInfStateAdapter = CovidSidoInfStateAdapter(vm)
         binding.covidSidoInfStateRv.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.covidSidoInfStateRv.addItemDecoration(object: RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
@@ -158,11 +157,11 @@ class CovidFragment: BaseFragment() {
             setOnRefreshListener {
                 launch {
                     try {
-                        vm.updateAll()
+                        covidVm.updateAll()
                         binding.swipeRefreshLayout.isRefreshing = false
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        vm.updateErrorData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
+                        covidVm.updateMessageData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
                         binding.swipeRefreshLayout.isRefreshing = false
                     }
                 }
@@ -172,7 +171,7 @@ class CovidFragment: BaseFragment() {
 
     @SuppressLint("SetTextI18n")
     private fun observeCovidInfState() {
-        vm.covidInfState2.observe(viewLifecycleOwner) {
+        covidVm.covidInfState.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing CovidInfState")
             binding.covidInfStateDateTv.text = "(${
                 Utils.getDateFormatString(
@@ -185,7 +184,7 @@ class CovidFragment: BaseFragment() {
 
     @SuppressLint("SetTextI18n")
     private fun observeCovidSidoInfState() {
-        vm.covidSidInfState.observe(viewLifecycleOwner) {
+        covidVm.covidSidInfState.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing CovidSidoInfState")
 
             covidSidoInfStateAdapter.items = it.body.items.item
@@ -200,7 +199,7 @@ class CovidFragment: BaseFragment() {
     }
 
     private fun observeMainData() {
-        vm.mainData.observe(viewLifecycleOwner) {
+        covidVm.mainData.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing MainData")
 
             setBarChartEntry(it.minY, it.maxY, it.entry, it.stateDts)
@@ -215,7 +214,7 @@ class CovidFragment: BaseFragment() {
     }
 
     private fun observeErrorData() {
-        vm.errorData.observe(viewLifecycleOwner) {
+        covidVm.messageData.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing ErrorData")
 
             Snackbar.make(binding.totalDeathCntTv, it, 1500).show()
@@ -226,11 +225,11 @@ class CovidFragment: BaseFragment() {
     private fun observeSelectedData() {
         println("xxx ~~~~~~~~~~~Observing SelectData")
 
-        vm.selectedDate.observe(viewLifecycleOwner) {
+        covidVm.selectedDate.observe(viewLifecycleOwner) {
             binding.selectedDateTv.visibility = View.VISIBLE
             binding.selectedDateTv.text = it
         }
-        vm.selectedDecideCnt.observe(viewLifecycleOwner) {
+        covidVm.selectedDecideCnt.observe(viewLifecycleOwner) {
             binding.selectedDecideCntText.text = it
         }
     }

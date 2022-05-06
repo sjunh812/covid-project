@@ -1,4 +1,4 @@
-package org.sjhstudio.howstoday.database
+package org.sjhstudio.howstoday.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

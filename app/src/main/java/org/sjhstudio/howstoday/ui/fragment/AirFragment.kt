@@ -1,4 +1,4 @@
-package org.sjhstudio.howstoday.fragment
+package org.sjhstudio.howstoday.ui.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -15,25 +15,32 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.BaseFragment
 import org.sjhstudio.howstoday.ui.MainActivity
 import org.sjhstudio.howstoday.R
-import org.sjhstudio.howstoday.database.LocBookmark
+import org.sjhstudio.howstoday.model.LocBookmark
 import org.sjhstudio.howstoday.databinding.FragmentAirBinding
 import org.sjhstudio.howstoday.util.Utils
 import org.sjhstudio.howstoday.viewmodel.AirViewModel
 import org.sjhstudio.howstoday.viewmodel.LocBookmarkViewModel
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AirFragment: BaseFragment() {
 
     private lateinit var binding: FragmentAirBinding
-    private lateinit var vm: AirViewModel   // 대기정보 뷰모델
-    private lateinit var bookmarkVM: LocBookmarkViewModel   // 측정소 db 뷰모델(AndroidViewModel)
+    private val airVm: AirViewModel by viewModels()
+    private val bookmarkVm: LocBookmarkViewModel by viewModels()
+    private val locationListener: MyLocationListener by lazy { MyLocationListener() }
+
+    @Inject
     private lateinit var lm: LocationManager
-    private var locationListener = MyLocationListener()
+
     private var locBookmarkList: List<LocBookmark>? = null  // 측정소 즐겨찾기 목록
     private var isPause: Boolean = false
 
@@ -65,11 +72,6 @@ class AirFragment: BaseFragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_air, container, false)
         lm = requireContext().getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
-        vm = ViewModelProvider(requireActivity())[AirViewModel::class.java]
-        bookmarkVM = ViewModelProvider(
-            requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
-        )[LocBookmarkViewModel::class.java]
 
         requestLocationPermission()
 
@@ -91,13 +93,13 @@ class AirFragment: BaseFragment() {
         super.onClick(v)
         when(v?.id) {
             R.id.bookmark_img -> {  // 즐겨찾기 추가/삭제
-                val curStation = vm.mainData.value?.station ?: ""
-                val curStationAddr = vm.mainData.value?.stationAddr ?: ""
+                val curStation = airVm.mainData.value?.station ?: ""
+                val curStationAddr = airVm.mainData.value?.stationAddr ?: ""
 
                 if(isBookmarkStation(curStation) != null) { // 삭제
-                    bookmarkVM.delete(isBookmarkStation(curStation)!!)
+                    bookmarkVm.delete(isBookmarkStation(curStation)!!)
                 } else {    // 추가
-                    bookmarkVM.insert(LocBookmark(curStation, curStationAddr))
+                    bookmarkVm.insert(LocBookmark(curStation, curStationAddr))
                 }
             }
 
@@ -116,7 +118,7 @@ class AirFragment: BaseFragment() {
                     ) { _, w ->
                         locBookmarkList?.let {
                             binding.progressBar.visibility = View.VISIBLE
-                            vm.updateMainData(it[w].station, it[w].stationAddr)
+                            airVm.getMainData(it[w].station, it[w].stationAddr)
                         }
                     }
                 } else {
@@ -163,7 +165,7 @@ class AirFragment: BaseFragment() {
                         findLocation()
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        vm.updateMessageData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
+                        airVm.updateMessageData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
                         binding.swipeRefreshLayout.isRefreshing = false
                     }
                 }
@@ -210,7 +212,7 @@ class AirFragment: BaseFragment() {
     @SuppressLint("SetTextI18n")
     private fun observeMainData() {
         println("xxx ~~~~~~~~~~~Observing MainData")
-        vm.mainData.observe(viewLifecycleOwner) { mainData ->
+        airVm.mainData.observe(viewLifecycleOwner) { mainData ->
             val airInfo = mainData.airInfo
 
             airInfo?.let { info ->
@@ -286,7 +288,7 @@ class AirFragment: BaseFragment() {
     }
 
     private fun observeMessageData() {
-        vm.messageData.observe(viewLifecycleOwner) {
+        airVm.messageData.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing ErrorData")
             if(it.contains("서버")) {
                 setFailedUI()
@@ -298,7 +300,7 @@ class AirFragment: BaseFragment() {
     }
 
     private fun observeLocBookmarkResult() {
-        bookmarkVM.lbResult.observe(viewLifecycleOwner) {
+        bookmarkVm.lbResult.observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing LocBookmarkResult")
             Snackbar.make(binding.stationTv, it, 1000).show()
             if(it.contains("삭제")) {
@@ -310,7 +312,7 @@ class AirFragment: BaseFragment() {
     }
 
     private fun observeLocBookmarkList() {
-        bookmarkVM.getAll().observe(viewLifecycleOwner) {
+        bookmarkVm.getAll().observe(viewLifecycleOwner) {
             println("xxx ~~~~~~~~~~~Observing observeLocBookmarkList")
             locBookmarkList = it
         }
@@ -345,7 +347,7 @@ class AirFragment: BaseFragment() {
             val longitude = location.longitude  // 경도
 
             println("xxx onLocationChanged() : 위도($latitude), 경도($longitude)")
-            vm.updateMainData(latitude, longitude)
+            airVm.getMainData(latitude, longitude)
             lm.removeUpdates(locationListener)
         }
 

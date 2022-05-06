@@ -1,21 +1,16 @@
 package org.sjhstudio.howstoday.repository
 
-import android.app.Application
 import androidx.lifecycle.LiveData
-import org.sjhstudio.howstoday.database.AppDatabase
-import org.sjhstudio.howstoday.database.LocBookmark
-import org.sjhstudio.howstoday.database.LocBookmarkDao
+import org.sjhstudio.howstoday.data.local.LocBookmarkDatabase
+import org.sjhstudio.howstoday.model.LocBookmark
+import org.sjhstudio.howstoday.data.local.dao.LocBookmarkDao
+import javax.inject.Inject
 
-class LocBookmarkRepository(application: Application) {
+class LocBookmarkRepository @Inject constructor(
+    locBookmarkDatabase: LocBookmarkDatabase
+) {
 
-    private val locBookmarkDao: LocBookmarkDao
-    private val locBookmarkList: LiveData<List<LocBookmark>>
-
-    init {
-        val db = AppDatabase.getInstance(application)
-        locBookmarkDao = db!!.locBookmarkDao()
-        locBookmarkList = db.locBookmarkDao().getAll()
-    }
+    private val locBookmarkDao: LocBookmarkDao = locBookmarkDatabase.locBookmarkDao()
 
     fun getAll(): LiveData<List<LocBookmark>> {
         return locBookmarkDao.getAll()

@@ -5,15 +5,20 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.sjhstudio.howstoday.database.LocBookmark
+import org.sjhstudio.howstoday.model.LocBookmark
 import org.sjhstudio.howstoday.repository.LocBookmarkRepository
+import javax.inject.Inject
 
-class LocBookmarkViewModel(application: Application): AndroidViewModel(application) {
+@HiltViewModel
+class LocBookmarkViewModel @Inject constructor(
+    application: Application,
+    private val locBookmarkRepository: LocBookmarkRepository
+): AndroidViewModel(application) {
 
-    private val locBookmarkRepository = LocBookmarkRepository(application)
     private val locBookmarkList = locBookmarkRepository.getAll()
 
     private var _lbResult = MutableLiveData<String>()

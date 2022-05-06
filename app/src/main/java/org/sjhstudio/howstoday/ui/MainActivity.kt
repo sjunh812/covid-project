@@ -4,14 +4,16 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.databinding.DataBindingUtil
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.sjhstudio.howstoday.BaseActivity
 import org.sjhstudio.howstoday.R
 import org.sjhstudio.howstoday.databinding.ActivityMainBinding
-import org.sjhstudio.howstoday.fragment.AirFragment
-import org.sjhstudio.howstoday.fragment.CovidFragment
+import org.sjhstudio.howstoday.ui.fragment.AirFragment
+import org.sjhstudio.howstoday.ui.fragment.CovidFragment
 
+@AndroidEntryPoint
 class MainActivity: BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
