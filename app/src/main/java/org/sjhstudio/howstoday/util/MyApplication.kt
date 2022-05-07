@@ -1,4 +1,4 @@
-package org.sjhstudio.howstoday
+package org.sjhstudio.howstoday.util
 
 import android.Manifest
 import android.app.Activity
@@ -7,11 +7,13 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.HiltAndroidApp
+import org.sjhstudio.howstoday.util.Constants.REQ_PERMISSION
 
 @HiltAndroidApp
 class MyApplication: Application() {
 
     companion object {
+
         lateinit var instance: MyApplication
 
         fun requestPermission(activity: Activity) {
@@ -21,7 +23,7 @@ class MyApplication: Application() {
                 ActivityCompat.requestPermissions(
                     activity,
                     needPermissionList.toTypedArray(),
-                    Val.REQ_PERMISSION
+                    REQ_PERMISSION
                 )
             }
         }
@@ -39,6 +41,7 @@ class MyApplication: Application() {
 
             return needPermissionList
         }
+
     }
 
     override fun onCreate() {

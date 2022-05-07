@@ -12,19 +12,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.sjhstudio.howstoday.BaseFragment
-import org.sjhstudio.howstoday.ui.MainActivity
+import org.sjhstudio.howstoday.util.BaseFragment
 import org.sjhstudio.howstoday.R
 import org.sjhstudio.howstoday.model.LocBookmark
 import org.sjhstudio.howstoday.databinding.FragmentAirBinding
+import org.sjhstudio.howstoday.util.Constants.AIR_STATE_CHECKING_SERVER
+import org.sjhstudio.howstoday.util.Constants.AIR_STATE_FAIL
+import org.sjhstudio.howstoday.util.Constants.AIR_STATE_WAITING
 import org.sjhstudio.howstoday.util.Utils
 import org.sjhstudio.howstoday.viewmodel.AirViewModel
 import org.sjhstudio.howstoday.viewmodel.LocBookmarkViewModel
@@ -39,7 +39,7 @@ class AirFragment: BaseFragment() {
     private val locationListener: MyLocationListener by lazy { MyLocationListener() }
 
     @Inject
-    private lateinit var lm: LocationManager
+    lateinit var lm: LocationManager
 
     private var locBookmarkList: List<LocBookmark>? = null  // 측정소 즐겨찾기 목록
     private var isPause: Boolean = false
@@ -61,7 +61,7 @@ class AirFragment: BaseFragment() {
         super.onResume()
         if(!isPause) {
             binding.progressBar.visibility = View.VISIBLE
-            initUI()
+            setUi()
         }
     }
 
@@ -70,9 +70,12 @@ class AirFragment: BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_air, container, false)
-        lm = requireContext().getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
-
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_air,
+            container,
+            false
+        )
         requestLocationPermission()
 
         return binding.root
@@ -95,11 +98,12 @@ class AirFragment: BaseFragment() {
             R.id.bookmark_img -> {  // 즐겨찾기 추가/삭제
                 val curStation = airVm.mainData.value?.station ?: ""
                 val curStationAddr = airVm.mainData.value?.stationAddr ?: ""
+                val curLocBookmark = bookmarkVm.checkBookmarkStation(curStation)
 
-                if(isBookmarkStation(curStation) != null) { // 삭제
-                    bookmarkVm.delete(isBookmarkStation(curStation)!!)
-                } else {    // 추가
+                if(curLocBookmark == null) {    // 추가
                     bookmarkVm.insert(LocBookmark(curStation, curStationAddr))
+                } else {    // 삭제
+                    bookmarkVm.delete(curLocBookmark)
                 }
             }
 
@@ -149,10 +153,16 @@ class AirFragment: BaseFragment() {
                     locationListener
                 )
             } else {
-                Snackbar.make(binding.stationTv, "현위치를 가져오기 위해 GPS를 켜주세요!", 1000).show()
+                binding.swipeRefreshLayout.isRefreshing = false
+                Snackbar.make(
+                    binding.stationTv,
+                    requireContext().getString(R.string.turn_on_gps_for_bring_location)
+                    , 1000
+                ).show()
             }
         } else {
-            binding.noticeTv.text = "위치권한을 먼저 허용해주세요!"
+            binding.swipeRefreshLayout.isRefreshing = false
+            binding.noticeTv.text = requireContext().getString(R.string.permit_location_permission_first)
         }
     }
 
@@ -165,7 +175,7 @@ class AirFragment: BaseFragment() {
                         findLocation()
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        airVm.updateMessageData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
+                        airVm.updateMessageData(requireContext().getString(R.string.server_error_try_one_more_time))
                         binding.swipeRefreshLayout.isRefreshing = false
                     }
                 }
@@ -173,16 +183,8 @@ class AirFragment: BaseFragment() {
         }
     }
 
-    private fun isBookmarkStation(station: String): LocBookmark? {
-        locBookmarkList?.forEach { lb ->
-            if(lb.station == station) return lb
-        }
-
-        return null
-    }
-
-    fun initUI() {
-        Utils.setStatusBarColor(context as MainActivity, R.color.background)
+    private fun setUi(state: String = AIR_STATE_WAITING) {
+        Utils.setStatusBarColor(requireActivity(), R.color.background)
         binding.container.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
         binding.bookmarkImg.setImageResource(R.drawable.ic_star)
         binding.coFaceImg.setImageResource(0)
@@ -194,43 +196,50 @@ class AirFragment: BaseFragment() {
         binding.khaiFaceImg.clearAnimation()
         binding.stationAddrTv.text = ""
         binding.noticeTv.apply {
-            text = "잠시만 기다려주세요.."
-            binding.khaiFaceImg.setImageResource(R.drawable.ic_wink_face)
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+            when(state) {
+                AIR_STATE_WAITING -> {
+                    text = requireContext().getString(R.string.please_wait)
+                    binding.khaiFaceImg.setImageResource(R.drawable.ic_wink_face)
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                }
+
+                AIR_STATE_FAIL -> {
+                    text = "서버상태가 좋지않습니다.. 잠시후 다시 시도해주세요."
+                    binding.khaiFaceImg.setImageResource(R.drawable.ic_sorrow_face)
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                }
+
+                AIR_STATE_CHECKING_SERVER -> {
+                    text = Utils.setGradePhrase("")
+                    binding.khaiFaceImg.setImageResource(R.drawable.ic_sorrow_face)
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                }
+            }
         }
     }
 
-    fun setFailedUI() {
-        initUI()
-        binding.noticeTv.apply {
-            text = "서버상태가 좋지않습니다.. 잠시후 다시 시도해주세요."
-            binding.khaiFaceImg.setImageResource(R.drawable.ic_sorrow_face)
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-        }
+    private fun initProgressBar() {
+        binding.swipeRefreshLayout.isRefreshing = false
+        binding.progressBar.visibility = View.GONE
     }
 
     @SuppressLint("SetTextI18n")
     private fun observeMainData() {
-        println("xxx ~~~~~~~~~~~Observing MainData")
+        println("xxx observeMainData()")
         airVm.mainData.observe(viewLifecycleOwner) { mainData ->
-            val airInfo = mainData.airInfo
-
-            airInfo?.let { info ->
-                binding.progressBar.visibility = View.GONE
-                binding.swipeRefreshLayout.isRefreshing = false
-
+            mainData.airInfo?.let { info ->
+                initProgressBar()
                 if(info.pm10Flag == "점검및교정" || info.pm25Flag == "점검및교정" || info.coFlag == "점검및교정"
-                    || info.no2Flag == "점검및교정" || info.o3Flag == "점검및교정" || info.so2Flag == "점검및교정") {
-                    initUI()
-                    binding.noticeTv.apply {
-                        text = Utils.setGradePhrase("")
-                        binding.khaiFaceImg.setImageResource(R.drawable.ic_sorrow_face)
-                        setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-                    }
+                    || info.no2Flag == "점검및교정" || info.o3Flag == "점검및교정" || info.so2Flag == "점검및교정"
+                ) { // 서버점검및교정
+                    setUi(state = AIR_STATE_CHECKING_SERVER)
                 } else {
                     // 측정소 즐겨찾기
-                    if(isBookmarkStation(mainData.station) != null) binding.bookmarkImg.setImageResource(R.drawable.ic_star_color)
-                    else binding.bookmarkImg.setImageResource(R.drawable.ic_star)
+                    if(bookmarkVm.checkBookmarkStation(mainData.station) != null) {
+                        binding.bookmarkImg.setImageResource(R.drawable.ic_star_color)
+                    } else {
+                        binding.bookmarkImg.setImageResource(R.drawable.ic_star)
+                    }
 
                     // 측정소
                     println("xxx 측정소 : ${mainData.stationAddr}")
@@ -241,40 +250,41 @@ class AirFragment: BaseFragment() {
                     binding.dateTimeTv.text = mainData.dateTime
 
                     // 미세먼지
-                    binding.pm10GradeTv.text = Utils.airGrade(airInfo.pm10Grade ?: -1)
-                    binding.pm10ValueTv.text = "(${airInfo.pm10Value?:""}㎍/㎥)"
+                    binding.pm10GradeTv.text = Utils.airGrade(info.pm10Grade ?: -1)
+                    binding.pm10ValueTv.text = "(${info.pm10Value?:""}㎍/㎥)"
                     Utils.setGradeFace(binding.pm10FaceImg, binding.pm10GradeTv.text.toString())
 
                     // 초미세먼지
-                    binding.pm25GradeTv.text = Utils.airGrade(airInfo.pm25Grade ?: -1)
-                    binding.pm25ValueTv.text = "${airInfo.pm25Value?:""}㎍/㎥"
+                    binding.pm25GradeTv.text = Utils.airGrade(info.pm25Grade ?: -1)
+                    binding.pm25ValueTv.text = "${info.pm25Value?:""}㎍/㎥"
                     Utils.setGradeFace(binding.pm25FaceImg, binding.pm25GradeTv.text.toString())
 
                     // 이산화질소
-                    binding.no2GradeTv.text = Utils.airGrade(airInfo.no2Grade ?: -1)
-                    binding.no2ValueTv.text = "${airInfo.no2Value?:""}ppm"
+                    binding.no2GradeTv.text = Utils.airGrade(info.no2Grade ?: -1)
+                    binding.no2ValueTv.text = "${info.no2Value?:""}ppm"
                     Utils.setGradeFace(binding.no2FaceImg,  binding.no2GradeTv.text.toString())
 
                     // 오존
-                    binding.o3GradeTv.text = Utils.airGrade(airInfo.o3Grade ?: -1)
-                    binding.o3ValueTv.text = "${airInfo.o3Value?:""}ppm"
+                    binding.o3GradeTv.text = Utils.airGrade(info.o3Grade ?: -1)
+                    binding.o3ValueTv.text = "${info.o3Value?:""}ppm"
                     Utils.setGradeFace(binding.o3FaceImg, binding.o3GradeTv.text.toString())
 
                     // 일산화탄소
-                    binding.coGradeTv.text = Utils.airGrade(airInfo.coGrade ?: -1)
-                    binding.coValueTv.text = "${airInfo.coValue?:""}ppm"
+                    binding.coGradeTv.text = Utils.airGrade(info.coGrade ?: -1)
+                    binding.coValueTv.text = "${info.coValue?:""}ppm"
                     Utils.setGradeFace(binding.coFaceImg, binding.coGradeTv.text.toString())
 
                     // 아황산가스
-                    binding.so2GradeTv.text = Utils.airGrade(airInfo.no2Grade ?: -1)
-                    binding.so2ValueTv.text = "${airInfo.so2Value?:""}ppm"
+                    binding.so2GradeTv.text = Utils.airGrade(info.no2Grade ?: -1)
+                    binding.so2ValueTv.text = "${info.so2Value?:""}ppm"
                     Utils.setGradeFace(binding.so2FaceImg, binding.so2GradeTv.text.toString())
 
                     // 통합대기환경
-                    binding.khaiGradeTv.text = Utils.airGrade(airInfo.khaiGrade ?: -1)
+                    binding.khaiGradeTv.text = Utils.airGrade(info.khaiGrade ?: -1)
                     Utils.setGradeFace(binding.khaiFaceImg, binding.khaiGradeTv.text.toString(), true)
+
                     val color = Utils.setGradeColor(binding.khaiGradeTv.text.toString())
-                    Utils.setStatusBarColor(context as MainActivity, color)
+                    Utils.setStatusBarColor(requireActivity(), color)
                     binding.container.setBackgroundColor(Color.parseColor(color))
                     binding.noticeTv.apply {
                         text = Utils.setGradePhrase(binding.khaiGradeTv.text.toString())
@@ -282,30 +292,27 @@ class AirFragment: BaseFragment() {
                         setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     }
                 }
-
             }
         }
     }
 
     private fun observeMessageData() {
         airVm.messageData.observe(viewLifecycleOwner) {
-            println("xxx ~~~~~~~~~~~Observing ErrorData")
-            if(it.contains("서버")) {
-                setFailedUI()
+            println("xxx observeMessageData()")
+            if(it.contains("서버")) { // 서버에러
+                setUi(state = AIR_STATE_FAIL)
+                initProgressBar()
             }
-            binding.swipeRefreshLayout.isRefreshing = false
-            binding.progressBar.visibility = View.GONE
-            Snackbar.make(binding.stationTv, it, 1500).show()
         }
     }
 
     private fun observeLocBookmarkResult() {
-        bookmarkVm.lbResult.observe(viewLifecycleOwner) {
-            println("xxx ~~~~~~~~~~~Observing LocBookmarkResult")
-            Snackbar.make(binding.stationTv, it, 1000).show()
-            if(it.contains("삭제")) {
+        bookmarkVm.lbResult.observe(viewLifecycleOwner) { msg ->
+            println("xxx observeLocBookmarkResult()")
+            Snackbar.make(binding.stationTv, msg, 1000).show()
+            if(msg.contains("삭제")) {
                 binding.bookmarkImg.setImageResource(R.drawable.ic_star)
-            } else if(it.contains("추가")) {
+            } else if(msg.contains("추가")) {
                 binding.bookmarkImg.setImageResource(R.drawable.ic_star_color)
             }
         }
@@ -313,7 +320,7 @@ class AirFragment: BaseFragment() {
 
     private fun observeLocBookmarkList() {
         bookmarkVm.getAll().observe(viewLifecycleOwner) {
-            println("xxx ~~~~~~~~~~~Observing observeLocBookmarkList")
+            println("xxx observeLocBookmarkList()")
             locBookmarkList = it
         }
     }
@@ -322,20 +329,19 @@ class AirFragment: BaseFragment() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         when {
-            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
+            -> {
                 findLocation()
-                Snackbar.make(binding.stationTv, "정확한 위치권한이 허용되었습니다.", 1000).show()
-            }
-
-            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                findLocation()
-                Snackbar.make(binding.stationTv, "대략적 위치권한이 허용되었습니다.", 1000).show()
             }
 
             else -> {
-                findLocation()
-                Snackbar.make(binding.stationTv, "허용된 위치권한이 없습니다.", 1000).show()
-                binding.noticeTv.text = "위치권한을 먼저 허용해주세요!"
+                Snackbar.make(
+                    binding.stationTv,
+                    requireContext().getString(R.string.deny_location_permission),
+                    1000
+                ).show()
+                binding.noticeTv.text = requireContext().getString(R.string.permit_location_permission_first)
             }
         }
     }

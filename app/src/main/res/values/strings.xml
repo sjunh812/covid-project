@@ -3,4 +3,10 @@
     <string name="covid">코로나</string>
     <string name="fine_dust">미세먼지</string>
     <string name="air_info_source_and_caution">자료 출처 : 환경부/한국환경공단(에어코리아)\n해당 기간에서 제공하는 자료는 \'인증 받지 않은 실시간 자료\' 이므로 자료 오류 및 표출 방식에 따라 값이 다를 수 있습니다.</string>
+    <string name="permit_location_permission_first">위치권한을 먼저 허용해주세요!</string>
+    <string name="deny_location_permission">위치권한을 거부하였습니다.</string>
+    <string name="turn_on_gps_for_bring_location">현위치를 가져오기 위해 GPS를 켜주세요!</string>
+<!--    <string name="network_error_try_one_more_time">네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.</string>-->
+    <string name="server_error_try_one_more_time">서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.</string>
+    <string name="please_wait">잠시만 기다려주세요..</string>
 </resources>

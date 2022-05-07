@@ -8,14 +8,17 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.sjhstudio.howstoday.R
 import org.sjhstudio.howstoday.model.AirMainData
 import org.sjhstudio.howstoday.repository.AirRepository
+import org.sjhstudio.howstoday.util.ResourceProvider
 import retrofit2.await
 import javax.inject.Inject
 
 @HiltViewModel
 class AirViewModel @Inject constructor(
-    private val airRepository: AirRepository
+    private val airRepository: AirRepository,
+    private val resourceProvider: ResourceProvider
 ): ViewModel() {
 
     private var _mainData = MutableLiveData<AirMainData>()
@@ -47,7 +50,7 @@ class AirViewModel @Inject constructor(
                 updateMessageData("$stationName 불러오기 완료!")
             } catch(e: Exception) {
                 e.printStackTrace()
-                updateMessageData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
+                updateMessageData(resourceProvider.getString(R.string.server_error_try_one_more_time))
             }
         }
     }
@@ -79,7 +82,7 @@ class AirViewModel @Inject constructor(
                 }
             } catch(e: Exception) {
                 e.printStackTrace()
-                updateMessageData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
+                updateMessageData(resourceProvider.getString(R.string.server_error_try_one_more_time))
             }
         }
     }

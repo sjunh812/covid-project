@@ -1,15 +1,12 @@
-package org.sjhstudio.howstoday
+package org.sjhstudio.howstoday.util
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.navigation.NavigationBarView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlin.coroutines.CoroutineContext
 
-open class BaseActivity: AppCompatActivity(),
-    CoroutineScope {
+open class BaseActivity: AppCompatActivity(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Main
@@ -18,4 +15,5 @@ open class BaseActivity: AppCompatActivity(),
         super.onCreate(savedInstanceState)
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
+
 }

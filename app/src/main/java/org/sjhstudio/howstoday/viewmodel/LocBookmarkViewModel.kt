@@ -25,10 +25,6 @@ class LocBookmarkViewModel @Inject constructor(
     val lbResult: LiveData<String>
         get() = _lbResult
 
-    init {
-        _lbResult.value = ""
-    }
-
     fun getAll(): LiveData<List<LocBookmark>> {
         return locBookmarkList
     }
@@ -45,6 +41,16 @@ class LocBookmarkViewModel @Inject constructor(
             withContext(IO) { locBookmarkRepository.delete(locBookmark) }
             _lbResult.value = "즐겨찾기 삭제완료"
         }
+    }
+
+    fun checkBookmarkStation(station: String): LocBookmark? {
+        locBookmarkList.value?.forEach { lb ->
+            if(lb.station == station) {
+                return lb
+            }
+        }
+
+        return null
     }
 
 }

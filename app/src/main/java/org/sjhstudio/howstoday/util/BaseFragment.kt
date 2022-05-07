@@ -1,4 +1,4 @@
-package org.sjhstudio.howstoday
+package org.sjhstudio.howstoday.util
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,8 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlin.coroutines.CoroutineContext
 
-open class BaseFragment: Fragment(), View.OnClickListener,
-    CoroutineScope {
+open class BaseFragment: Fragment(), View.OnClickListener, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Main
@@ -32,4 +31,5 @@ open class BaseFragment: Fragment(), View.OnClickListener,
     }
 
     override fun onClick(v: View?) {}
+
 }

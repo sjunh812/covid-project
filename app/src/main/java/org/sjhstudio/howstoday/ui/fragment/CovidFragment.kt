@@ -28,8 +28,7 @@ import com.github.mikephil.charting.utils.MPPointF
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.sjhstudio.howstoday.BaseFragment
-import org.sjhstudio.howstoday.ui.MainActivity
+import org.sjhstudio.howstoday.util.BaseFragment
 import org.sjhstudio.howstoday.R
 import org.sjhstudio.howstoday.ui.adapter.CovidSidoInfStateAdapter
 import org.sjhstudio.howstoday.databinding.FragmentCovidBinding
@@ -54,23 +53,22 @@ class CovidFragment: BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // UI 초기화
         initBarChart()
         initCovidSidoInfStateRv()  // 시도별 코로나 감염현황 RecyclerView 초기화.
         setSwipeRefreshLayout() // SwipeRefreshLayout 세팅.
-        Utils.setStatusBarColor(context as MainActivity, R.color.background)
+        Utils.setStatusBarColor(requireActivity(), R.color.background)
 
         // Observing
         observeCovidInfState()
         observeCovidSidoInfState()
         observeMainData()
-        observeErrorData()
+        observeMessageData()
         observeSelectedData()
     }
 
     private fun initBarChart() {
         binding.barChart.apply {
-            setNoDataText("잠시만 기다려주세요.")
+            setNoDataText(requireContext().getString(R.string.please_wait))
             setNoDataTextColor(Color.parseColor("#5A79BF"))
             setNoDataTextTypeface(Typeface.DEFAULT_BOLD)
             setTouchEnabled(true)  // 터치
@@ -104,8 +102,7 @@ class CovidFragment: BaseFragment() {
 
             setOnChartValueSelectedListener(object: OnChartValueSelectedListener {
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
-                    e?.let {
-                        println("xxx onValueSelected()!!")
+                    e?.let { e ->
                         covidVm.selectBarChart(e.x.toInt()-1)
                     }
                 }
@@ -136,19 +133,21 @@ class CovidFragment: BaseFragment() {
     }
 
     private fun initCovidSidoInfStateRv() {
-        binding.covidSidoInfStateRv.layoutManager = GridLayoutManager(requireContext(), 2)
-        binding.covidSidoInfStateRv.addItemDecoration(object: RecyclerView.ItemDecoration() {
-            override fun getItemOffsets(
-                outRect: Rect,
-                view: View,
-                parent: RecyclerView,
-                state: RecyclerView.State
-            ) {
-                super.getItemOffsets(outRect, view, parent, state)
-                if(parent.getChildLayoutPosition(view) % 2 != 0) outRect.left = 20
-                outRect.bottom = 40
-            }
-        })
+        binding.covidSidoInfStateRv.apply {
+            layoutManager = GridLayoutManager(requireContext(), 2)
+            addItemDecoration(object: RecyclerView.ItemDecoration() {
+                override fun getItemOffsets(
+                    outRect: Rect,
+                    view: View,
+                    parent: RecyclerView,
+                    state: RecyclerView.State
+                ) {
+                    super.getItemOffsets(outRect, view, parent, state)
+                    if(parent.getChildLayoutPosition(view) % 2 != 0) outRect.left = 20
+                    outRect.bottom = 40
+                }
+            })
+        }
     }
 
     private fun setSwipeRefreshLayout() {
@@ -158,12 +157,11 @@ class CovidFragment: BaseFragment() {
                 launch {
                     try {
                         covidVm.updateAll()
-                        binding.swipeRefreshLayout.isRefreshing = false
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        covidVm.updateMessageData("네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.")
-                        binding.swipeRefreshLayout.isRefreshing = false
+                        covidVm.updateMessageData(requireContext().getString(R.string.server_error_try_one_more_time))
                     }
+                    binding.swipeRefreshLayout.isRefreshing = false
                 }
             }
         }
@@ -172,7 +170,7 @@ class CovidFragment: BaseFragment() {
     @SuppressLint("SetTextI18n")
     private fun observeCovidInfState() {
         covidVm.covidInfState.observe(viewLifecycleOwner) {
-            println("xxx ~~~~~~~~~~~Observing CovidInfState")
+            println("xxx observeCovidInfState()")
             binding.covidInfStateDateTv.text = "(${
                 Utils.getDateFormatString(
                 "yyyy년 MM월 dd일 HH시",
@@ -185,8 +183,7 @@ class CovidFragment: BaseFragment() {
     @SuppressLint("SetTextI18n")
     private fun observeCovidSidoInfState() {
         covidVm.covidSidInfState.observe(viewLifecycleOwner) {
-            println("xxx ~~~~~~~~~~~Observing CovidSidoInfState")
-
+            println("observeCovidSidoInfState()")
             covidSidoInfStateAdapter.items = it.body.items.item
             binding.covidSidoInfStateRv.adapter = covidSidoInfStateAdapter
             binding.covidSidoInfStateDateTv.text = "(${
@@ -200,8 +197,7 @@ class CovidFragment: BaseFragment() {
 
     private fun observeMainData() {
         covidVm.mainData.observe(viewLifecycleOwner) {
-            println("xxx ~~~~~~~~~~~Observing MainData")
-
+            println("xxx observeMainData()")
             setBarChartEntry(it.minY, it.maxY, it.entry, it.stateDts)
             binding.dayDecideCntTv.text = Utils.getNumberWithComma(it.dayDecideCnt)
             binding.dayDeathCntTv.text = Utils.getNumberWithComma(it.dayDeathCnt)
@@ -213,22 +209,21 @@ class CovidFragment: BaseFragment() {
         }
     }
 
-    private fun observeErrorData() {
+    private fun observeMessageData() {
         covidVm.messageData.observe(viewLifecycleOwner) {
-            println("xxx ~~~~~~~~~~~Observing ErrorData")
-
+            println("xxx observeMessageData()")
             Snackbar.make(binding.totalDeathCntTv, it, 1500).show()
             binding.selectedDateTv.visibility = View.GONE
         }
     }
 
     private fun observeSelectedData() {
-        println("xxx ~~~~~~~~~~~Observing SelectData")
-
+        println("xxx observeSelectedData()")
         covidVm.selectedDate.observe(viewLifecycleOwner) {
             binding.selectedDateTv.visibility = View.VISIBLE
             binding.selectedDateTv.text = it
         }
+
         covidVm.selectedDecideCnt.observe(viewLifecycleOwner) {
             binding.selectedDecideCntText.text = it
         }

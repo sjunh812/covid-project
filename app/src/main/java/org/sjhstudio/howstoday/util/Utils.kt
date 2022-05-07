@@ -14,6 +14,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import com.google.android.material.snackbar.Snackbar
 import org.sjhstudio.howstoday.R
 import java.lang.Exception
@@ -205,6 +206,10 @@ object Utils {
 
     fun setStatusBarColor(activity: Activity, color: Int) {
         activity.window?.statusBarColor = ContextCompat.getColor(activity, color)
+    }
+
+    fun setStatusBarColor(fragmentActivity: FragmentActivity, color: Int) {
+        fragmentActivity.window?.statusBarColor = ContextCompat.getColor(fragmentActivity, color)
     }
 
     fun setStatusBarColor(activity: Activity, color: String) {

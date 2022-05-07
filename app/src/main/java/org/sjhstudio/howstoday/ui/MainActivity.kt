@@ -7,7 +7,7 @@ import androidx.databinding.DataBindingUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.sjhstudio.howstoday.BaseActivity
+import org.sjhstudio.howstoday.util.BaseActivity
 import org.sjhstudio.howstoday.R
 import org.sjhstudio.howstoday.databinding.ActivityMainBinding
 import org.sjhstudio.howstoday.ui.fragment.AirFragment
@@ -27,7 +27,7 @@ class MainActivity: BaseActivity() {
             initNavigationBar()
             supportFragmentManager.beginTransaction()
                 .replace(R.id.container, CovidFragment(), "covidFragment")
-                .commit()
+                .commitAllowingStateLoss()
             delay(1000)
             isReady = true
             println("xxx 화면출력 시작")

@@ -1,33 +1,27 @@
 package org.sjhstudio.howstoday.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.mikephil.charting.data.BarEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.sjhstudio.howstoday.model.CovidInfState
+import org.sjhstudio.howstoday.R
 import org.sjhstudio.howstoday.model.CovidSidoInfState
 import org.sjhstudio.howstoday.model.CsiItem
 import org.sjhstudio.howstoday.model.CovidMainData
-import org.sjhstudio.howstoday.network.RetrofitClient
 import org.sjhstudio.howstoday.repository.CovidRepository
 import org.sjhstudio.howstoday.util.Utils
-import org.sjhstudio.howstoday.util.Constants
 import org.sjhstudio.howstoday.util.CovidHelper
+import org.sjhstudio.howstoday.util.ResourceProvider
 import retrofit2.await
 import javax.inject.Inject
 
 @HiltViewModel
 class CovidViewModel @Inject constructor(
-    private val covidRepository: CovidRepository
+    private val covidRepository: CovidRepository,
+    private val resourceProvider: ResourceProvider
 ): ViewModel() {
-
-    private val TAG = "CovidInfStateViewModel"
 
     // 코로나 감염현황(시도별 합계데이터 이용)
     private var _covidInfState = MutableLiveData<List<CsiItem>>()
@@ -59,11 +53,7 @@ class CovidViewModel @Inject constructor(
         get() = _messageData
 
     init {
-        viewModelScope.launch {
-            getCovidInfState()
-            getCovidSidoInfState()
-            getCovidMainData()
-        }
+        updateAll()
     }
 
     fun updateAll() {
@@ -98,7 +88,7 @@ class CovidViewModel @Inject constructor(
             }
         } catch(e: Exception) {
             e.printStackTrace()
-            updateMessageData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
+            updateMessageData(resourceProvider.getString(R.string.server_error_try_one_more_time))
         }
     }
 
@@ -122,7 +112,7 @@ class CovidViewModel @Inject constructor(
             }
         } catch(e: Exception) {
             e.printStackTrace()
-            updateMessageData("서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.")
+            updateMessageData(resourceProvider.getString(R.string.server_error_try_one_more_time))
         }
     }
 

@@ -11,8 +11,9 @@ import org.sjhstudio.howstoday.util.ApiKey.TRANS_COORD_API_KEY
 import org.sjhstudio.howstoday.util.Constants
 import org.sjhstudio.howstoday.util.Constants.JSON
 import retrofit2.Call
+import javax.inject.Inject
 
-class AirRepository(
+class AirRepository @Inject constructor(
     private val airApi: AirApi,
     private val kakaoApi: KakaoApi
 ) {
@@ -46,8 +47,8 @@ class AirRepository(
         val params = hashMapOf(
             Pair("x", long.toString()),
             Pair("y", lat.toString()),
-            Pair("input_cood", "WGS84"),
-            Pair("output_cood", "TM")
+            Pair("input_coord", "WGS84"),
+            Pair("output_coord", "TM")
         )
 
         return kakaoApi.getTranscoord(TRANS_COORD_API_KEY, params)
