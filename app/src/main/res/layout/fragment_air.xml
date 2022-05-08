@@ -23,7 +23,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="5dp"
                     android:orientation="horizontal">
@@ -93,7 +93,7 @@
                         android:id="@+id/khai_grade_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginBottom="20dp"
                         android:gravity="center"
                         android:text=""
                         android:textSize="30dp"
@@ -112,7 +112,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:textSize="15dp"
-                            android:text="미세먼지 : "
+                            android:text="@string/fine_dust_equal"
                             android:textStyle="bold"
                             android:textColor="@color/white" />
 
@@ -121,9 +121,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
-                            android:layout_marginRight="2dp"
+                            android:layout_marginEnd="2dp"
                             android:textSize="15dp"
-                            android:text="보통"
                             android:textStyle="bold"
                             android:textColor="@color/white" />
 

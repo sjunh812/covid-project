@@ -9,4 +9,5 @@
 <!--    <string name="network_error_try_one_more_time">네트워크 에러가 발생했습니다. 잠시후 다시 시도해주세요.</string>-->
     <string name="server_error_try_one_more_time">서버 상태가 원활하지 않습니다. 잠시 후 다시 시도해주세요.</string>
     <string name="please_wait">잠시만 기다려주세요..</string>
+    <string name="fine_dust_equal">미세먼지&#160;:&#160;</string>
 </resources>

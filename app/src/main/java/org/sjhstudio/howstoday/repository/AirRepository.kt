@@ -35,7 +35,7 @@ class AirRepository @Inject constructor(
              Pair("dataTerm", "daily"),
              Pair("pageNo", "1"),
              Pair("numOfRows", "100"),
-             Pair("returnType", Constants.JSON),
+             Pair("returnType", JSON),
              Pair("serviceKey", ApiKey.AIR_INFO_API_KEY),
              Pair("ver", "1.0")
          )

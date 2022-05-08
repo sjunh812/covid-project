@@ -11,7 +11,7 @@ interface AirApi {
     @GET("/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList")
     fun getAirStation(@QueryMap query: Map<String, String>): Call<AirStationData>
 
-    @GET("B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty")
+    @GET("/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty")
     fun getAirInfo(@QueryMap query: Map<String, String>): Call<AirInfoData>
 
 }

@@ -66,7 +66,7 @@ class AirViewModel @Inject constructor(
                 val airStation = withContext(IO) {
                     val call = airRepository.getAirStation(tm.x!!, tm.y!!)
                     val response = call.await()
-                    response.response.body.items[0]
+                    response.response.body.items[1]
                 }
                 val airInfo = withContext(IO) {
                     val call = airRepository.getAirInfo(airStation.stationName!!)
