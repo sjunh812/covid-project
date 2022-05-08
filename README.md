@@ -1,6 +1,7 @@
 # 😷 코로미세
-![ic_launcher-playstore](https://user-images.githubusercontent.com/79048895/167290332-19d7d9ba-4ffe-4ea3-9e2f-f60a0d4af44b.png)
-
+![ic_launcher](https://user-images.githubusercontent.com/79048895/167291018-2ad10b9f-7462-4134-b05b-f7dc5d233ca6.png)
+<br>
+<br>
 ## 📷 스크린샷
 <img src="https://user-images.githubusercontent.com/79048895/167290862-61067d48-49bb-4532-897a-c7e72bf96452.jpg" width="180" height="390" /> <img src="https://user-images.githubusercontent.com/79048895/167290895-fa97392c-a6b8-43c5-b022-9aab17b26cf6.jpg" width="180" height="390" /> <img src="https://user-images.githubusercontent.com/79048895/167290910-be92b819-2379-47c2-982d-e3a934d697af.jpg" width="180" height="390" /> <img src="https://user-images.githubusercontent.com/79048895/167290947-7ab0438e-db17-4fa7-adf0-b0daf425ab92.jpg" width="180" height="390" /> <img src="https://user-images.githubusercontent.com/79048895/167290979-7d193ecf-af77-4f31-998b-333b49370474.jpg" width="180" height="390" />
 <br>
@@ -20,8 +21,6 @@ MVVM 패턴을 이용해 만들어본 첫번째 프로젝트입니다.
 - Retrofit2
 - Hilt
 <br>
-<br>
-
 ## ✍ 느낀점
 현재 안드로이드 개발에서 자주쓰이는 MVVM 패턴이라든지
 Hilt와 같은 종속성 라이브러리를 이번 프로젝트를 통해 직접 실습해볼 수 있는
