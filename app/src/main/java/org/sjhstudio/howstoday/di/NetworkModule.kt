@@ -1,4 +1,4 @@
-package org.sjhstudio.howstoday.module
+package org.sjhstudio.howstoday.di
 
 import com.tickaroo.tikxml.TikXml
 import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory

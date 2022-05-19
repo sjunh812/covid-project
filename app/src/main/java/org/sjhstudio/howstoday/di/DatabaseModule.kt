@@ -1,4 +1,4 @@
-package org.sjhstudio.howstoday.module
+package org.sjhstudio.howstoday.di
 
 import android.content.Context
 import androidx.room.Room

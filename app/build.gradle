@@ -38,6 +38,7 @@ android {
     dataBinding {
         enabled = true
     }
+    namespace 'org.sjhstudio.howstoday'
 }
 
 dependencies {
